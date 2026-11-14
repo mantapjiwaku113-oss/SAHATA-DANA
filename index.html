@@ -1,0 +1,107 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SAHATA DANA</title>
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#f8f8f4;
+  color:#26352d;
+}
+header{
+  background:#173f35;
+  color:white;
+  padding:24px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.brand{font-size:20px;letter-spacing:2px;font-weight:bold}
+.brand small{display:block;font-size:10px;color:#d7dfd7;letter-spacing:1px;margin-top:6px}
+main{max-width:1000px;margin:auto;padding:32px 20px}
+h1{font-size:27px;margin-bottom:8px}
+.sub{color:#858b83;font-size:14px}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:28px}
+.card{
+  background:white;padding:23px;border:1px solid #e8e8df;
+  border-radius:12px;
+}
+.label{font-size:12px;color:#777f77}
+.number{font-size:24px;font-weight:bold;margin-top:18px;color:#173f35}
+.panel{
+  margin-top:24px;background:white;border:1px solid #e8e8df;
+  padding:24px;border-radius:12px;
+}
+.panel h2{font-size:17px;margin-top:0}
+.empty{color:#858b83;font-size:13px;padding:25px 0}
+button{
+  background:#173f35;color:white;border:0;border-radius:8px;
+  padding:13px 17px;cursor:pointer;font-weight:bold;
+}
+footer{
+  margin-top:55px;padding:24px 12px;text-align:center;
+  border-top:1px solid #e8e8df;color:#929890;font-size:11px;
+  line-height:1.9;
+}
+.creator{font-size:10px;letter-spacing:1px}
+.creator strong{color:#173f35;letter-spacing:1.5px}
+@media(max-width:650px){
+  .cards{grid-template-columns:1fr}
+  main{padding:24px 16px}
+  h1{font-size:24px}
+  .number{font-size:22px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    SAHATA DANA
+    <small>EMPLOYEE FINANCE</small>
+  </div>
+  <div style="font-size:12px">ADMIN</div>
+</header>
+
+<main>
+  <h1>Ringkasan</h1>
+  <div class="sub">Kelola kasbon karyawan dengan mudah.</div>
+
+  <section class="cards">
+    <div class="card">
+      <div class="label">Total Kasbon Aktif</div>
+      <div class="number">Rp 0</div>
+    </div>
+    <div class="card">
+      <div class="label">Menunggu Persetujuan</div>
+      <div class="number">0 pengajuan</div>
+    </div>
+    <div class="card">
+      <div class="label">Total Karyawan</div>
+      <div class="number">0 orang</div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Pengajuan Kasbon</h2>
+    <div class="sub">Daftar pengajuan kasbon karyawan.</div>
+    <div class="empty">Belum ada pengajuan kasbon.</div>
+    <button onclick="alert('Fitur ini akan diaktifkan setelah database terhubung.')">
+      + Pengajuan Kasbon
+    </button>
+  </section>
+
+  <footer>
+    <div>SAHATA DANA © 2026 · Sistem Kasbon Karyawan</div>
+    <div class="creator">Created with care by</div>
+    <div class="creator"><strong>POWER LUMBANBATU</strong></div>
+  </footer>
+</main>
+
+</body>
+</html>

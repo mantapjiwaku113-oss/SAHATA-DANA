@@ -261,6 +261,141 @@ function renderPengajuan() {
   );
 
   console.log('Koneksi Supabase siap digunakan');
+  
+let modeAuth = "login";
+
+const halamanLogin = document.getElementById("halamanLogin");
+const formLogin = document.getElementById("formLogin");
+const bagianNamaDaftar = document.getElementById("bagianNamaDaftar");
+const namaDaftar = document.getElementById("namaDaftar");
+const emailLogin = document.getElementById("emailLogin");
+const passwordLogin = document.getElementById("passwordLogin");
+const tombolDaftar = document.getElementById("tombolDaftar");
+const pesanLogin = document.getElementById("pesanLogin");
+const tombolMasuk = formLogin.querySelector('button[type="submit"]');
+
+const bagianDashboard = document.querySelectorAll(
+  "main > h1, main > .sub, main > .cards, main > .panel, main > footer"
+);
+
+// Sembunyikan dashboard sampai akun diperiksa.
+bagianDashboard.forEach(bagian => bagian.hidden = true);
+
+function tampilkanPesanLogin(pesan) {
+  pesanLogin.textContent = pesan;
+}
+
+function aturModeAuth(mode) {
+  modeAuth = mode;
+  const sedangDaftar = mode === "daftar";
+
+  bagianNamaDaftar.hidden = !sedangDaftar;
+  namaDaftar.required = sedangDaftar;
+  tombolMasuk.textContent = sedangDaftar ? "Buat Akun" : "Masuk";
+  tombolDaftar.textContent = sedangDaftar ? "Kembali ke Masuk" : "Daftar Akun Baru";
+  tampilkanPesanLogin("");
+}
+
+tombolDaftar.addEventListener("click", () => {
+  aturModeAuth(modeAuth === "login" ? "daftar" : "login");
+});
+
+async function periksaAkun(user) {
+  const { data: profil, error } = await supabaseClient
+    .from("profiles")
+    .select("full_name, role, account_status")
+    .eq("id", user.id)
+    .single();
+
+  if (error || !profil) {
+    tampilkanPesanLogin(
+      "Profil belum dapat diperiksa. Coba lagi atau hubungi admin."
+    );
+    return false;
+  }
+
+  if (profil.account_status !== "approved") {
+    await supabaseClient.auth.signOut();
+
+    if (profil.account_status === "rejected") {
+      tampilkanPesanLogin("Pendaftaran akun ditolak. Hubungi admin.");
+    } else {
+      tampilkanPesanLogin(
+        "Akun berhasil dibuat, tetapi masih menunggu persetujuan admin."
+      );
+    }
+
+    return false;
+  }
+
+  halamanLogin.hidden = true;
+  bagianDashboard.forEach(bagian => bagian.hidden = false);
+  return true;
+}
+
+formLogin.addEventListener("submit", async event => {
+  event.preventDefault();
+  tampilkanPesanLogin("Memproses...");
+  tombolMasuk.disabled = true;
+
+  try {
+    const email = emailLogin.value.trim();
+    const password = passwordLogin.value;
+
+    if (modeAuth === "daftar") {
+      const nama = namaDaftar.value.trim();
+
+      if (!nama) {
+        tampilkanPesanLogin("Masukkan nama lengkap.");
+        return;
+      }
+
+      const { data, error } = await supabaseClient.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { full_name: nama }
+        }
+      });
+
+      if (error) throw error;
+
+      if (data.session && data.user) {
+        await periksaAkun(data.user);
+      } else {
+        tampilkanPesanLogin(
+          "Pendaftaran dikirim. Periksa email untuk konfirmasi jika diminta. Setelah itu tunggu persetujuan admin."
+        );
+      }
+    } else {
+      const { data, error } =
+        await supabaseClient.auth.signInWithPassword({
+          email,
+          password
+        });
+
+      if (error) throw error;
+
+      if (data.user) {
+        await periksaAkun(data.user);
+      }
+    }
+  } catch (error) {
+    tampilkanPesanLogin("Gagal: " + error.message);
+  } finally {
+    tombolMasuk.disabled = false;
+  }
+});
+
+// Periksa sesi yang masih aktif saat halaman dibuka kembali.
+(async () => {
+  const { data, error } = await supabaseClient.auth.getSession();
+
+  if (!error && data.session) {
+    await periksaAkun(data.session.user);
+  }
+})();
+
 </script>
 
 </body>

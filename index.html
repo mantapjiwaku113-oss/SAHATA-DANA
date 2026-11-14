@@ -7,64 +7,42 @@
 <title>SAHATA DANA</title>
 <style>
 *{box-sizing:border-box}
-body{
-  margin:0;
-  font-family:Arial,sans-serif;
-  background:#f8f8f4;
-  color:#26352d;
-}
-header{
-  background:#173f35;
-  color:white;
-  padding:24px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-}
+body{margin:0;font-family:Arial,sans-serif;background:#f8f8f4;color:#26352d}
+header{background:#173f35;color:white;padding:24px;display:flex;align-items:center;justify-content:space-between}
 .brand{font-size:20px;letter-spacing:2px;font-weight:bold}
 .brand small{display:block;font-size:10px;color:#d7dfd7;letter-spacing:1px;margin-top:6px}
 main{max-width:1000px;margin:auto;padding:32px 20px}
 h1{font-size:27px;margin-bottom:8px}
 .sub{color:#858b83;font-size:14px}
 .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:28px}
-.card{
-  background:white;padding:23px;border:1px solid #e8e8df;
-  border-radius:12px;
-}
+.card{background:white;padding:23px;border:1px solid #e8e8df;border-radius:12px}
 .label{font-size:12px;color:#777f77}
 .number{font-size:24px;font-weight:bold;margin-top:18px;color:#173f35}
-.panel{
-  margin-top:24px;background:white;border:1px solid #e8e8df;
-  padding:24px;border-radius:12px;
-}
+.panel{margin-top:24px;background:white;border:1px solid #e8e8df;padding:24px;border-radius:12px}
 .panel h2{font-size:17px;margin-top:0}
 .empty{color:#858b83;font-size:13px;padding:25px 0}
-button{
-  background:#173f35;color:white;border:0;border-radius:8px;
-  padding:13px 17px;cursor:pointer;font-weight:bold;
-}
-footer{
-  margin-top:55px;padding:24px 12px;text-align:center;
-  border-top:1px solid #e8e8df;color:#929890;font-size:11px;
-  line-height:1.9;
-}
+button{background:#173f35;color:white;border:0;border-radius:8px;padding:13px 17px;cursor:pointer;font-weight:bold}
+button.secondary{background:#e9eee9;color:#173f35;margin-left:8px}
+form{margin-top:22px}
+.field{margin-bottom:16px}
+label{display:block;font-size:13px;font-weight:bold;margin-bottom:7px}
+input,textarea{width:100%;padding:12px;border:1px solid #dcded6;border-radius:8px;font:inherit;background:#fff}
+textarea{min-height:85px;resize:vertical}
+.form-actions{display:flex;flex-wrap:wrap;gap:8px}
+.form-actions .secondary{margin-left:0}
+.request{padding:16px 0;border-bottom:1px solid #e8e8df}
+.request strong{display:block;margin-bottom:6px}
+.status{font-size:12px;color:#956c25;margin-top:6px}
+footer{margin-top:55px;padding:24px 12px;text-align:center;border-top:1px solid #e8e8df;color:#929890;font-size:11px;line-height:1.9}
 .creator{font-size:10px;letter-spacing:1px}
 .creator strong{color:#173f35;letter-spacing:1.5px}
-@media(max-width:650px){
-  .cards{grid-template-columns:1fr}
-  main{padding:24px 16px}
-  h1{font-size:24px}
-  .number{font-size:22px}
-}
+[hidden]{display:none!important}
+@media(max-width:650px){.cards{grid-template-columns:1fr}main{padding:24px 16px}h1{font-size:24px}.number{font-size:22px}.panel{padding:18px}}
 </style>
 </head>
 <body>
-
 <header>
-  <div class="brand">
-    SAHATA DANA
-    <small>EMPLOYEE FINANCE</small>
-  </div>
+  <div class="brand">SAHATA DANA<small>EMPLOYEE FINANCE</small></div>
   <div style="font-size:12px">ADMIN</div>
 </header>
 
@@ -73,27 +51,41 @@ footer{
   <div class="sub">Kelola kasbon karyawan dengan mudah.</div>
 
   <section class="cards">
-    <div class="card">
-      <div class="label">Total Kasbon Aktif</div>
-      <div class="number">Rp 0</div>
-    </div>
-    <div class="card">
-      <div class="label">Menunggu Persetujuan</div>
-      <div class="number">0 pengajuan</div>
-    </div>
-    <div class="card">
-      <div class="label">Total Karyawan</div>
-      <div class="number">0 orang</div>
-    </div>
+    <div class="card"><div class="label">Total Kasbon Aktif</div><div class="number" id="totalAktif">Rp 0</div></div>
+    <div class="card"><div class="label">Menunggu Persetujuan</div><div class="number" id="totalMenunggu">0 pengajuan</div></div>
+    <div class="card"><div class="label">Total Karyawan</div><div class="number" id="totalKaryawan">0 orang</div></div>
   </section>
 
   <section class="panel">
     <h2>Pengajuan Kasbon</h2>
     <div class="sub">Daftar pengajuan kasbon karyawan.</div>
-    <div class="empty">Belum ada pengajuan kasbon.</div>
-    <button onclick="alert('Fitur ini akan diaktifkan setelah database terhubung.')">
-      + Pengajuan Kasbon
-    </button>
+    <div id="daftar">
+      <div class="empty">Belum ada pengajuan kasbon.</div>
+    </div>
+    <button id="bukaForm" type="button">+ Pengajuan Kasbon</button>
+
+    <div id="areaForm" hidden>
+      <hr style="border:0;border-top:1px solid #e8e8df;margin:24px 0">
+      <h2>Form Pengajuan Kasbon</h2>
+      <form id="formKasbon">
+        <div class="field">
+          <label for="nama">Nama karyawan</label>
+          <input id="nama" name="nama" required maxlength="100" placeholder="Masukkan nama karyawan">
+        </div>
+        <div class="field">
+          <label for="jumlah">Jumlah kasbon (Rp)</label>
+          <input id="jumlah" name="jumlah" type="number" required min="1" step="1000" placeholder="Contoh: 500000">
+        </div>
+        <div class="field">
+          <label for="alasan">Alasan pengajuan</label>
+          <textarea id="alasan" name="alasan" required maxlength="500" placeholder="Tuliskan alasan pengajuan kasbon"></textarea>
+        </div>
+        <div class="form-actions">
+          <button type="submit">Simpan Pengajuan</button>
+          <button class="secondary" id="batal" type="button">Batal</button>
+        </div>
+      </form>
+    </div>
   </section>
 
   <footer>
@@ -103,5 +95,94 @@ footer{
   </footer>
 </main>
 
+<script>
+const formatRupiah = angka =>
+  new Intl.NumberFormat("id-ID", {
+    style:"currency",currency:"IDR",maximumFractionDigits:0
+  }).format(angka);
+
+let pengajuan = [];
+const areaForm = document.getElementById("areaForm");
+const form = document.getElementById("formKasbon");
+
+document.getElementById("bukaForm").addEventListener("click", () => {
+  areaForm.hidden = false;
+  document.getElementById("nama").focus();
+});
+
+document.getElementById("batal").addEventListener("click", () => {
+  form.reset();
+  areaForm.hidden = true;
+});
+
+form.addEventListener("submit", event => {
+  event.preventDefault();
+
+  const nama = document.getElementById("nama").value.trim();
+  const jumlah = Number(document.getElementById("jumlah").value);
+  const alasan = document.getElementById("alasan").value.trim();
+
+  if (!nama || !Number.isSafeInteger(jumlah) || jumlah < 1 || !alasan) {
+    alert("Periksa kembali semua isian.");
+    return;
+  }
+
+  pengajuan.push({
+    nama, jumlah, alasan, status:"Menunggu persetujuan"
+  });
+
+  renderPengajuan();
+  form.reset();
+  areaForm.hidden = true;
+  alert("Pengajuan ditambahkan ke tampilan. Data masih sementara di browser.");
+});
+
+function renderPengajuan() {
+  const daftar = document.getElementById("daftar");
+  daftar.replaceChildren();
+
+  if (pengajuan.length === 0) {
+    const kosong = document.createElement("div");
+    kosong.className = "empty";
+    kosong.textContent = "Belum ada pengajuan kasbon.";
+    daftar.appendChild(kosong);
+  }
+
+  pengajuan.forEach(item => {
+    const baris = document.createElement("div");
+    baris.className = "request";
+
+    const nama = document.createElement("strong");
+    nama.textContent = item.nama;
+
+    const nominal = document.createElement("div");
+    nominal.textContent = formatRupiah(item.jumlah);
+
+    const alasan = document.createElement("div");
+    alasan.className = "sub";
+    alasan.textContent = "Alasan: " + item.alasan;
+
+    const status = document.createElement("div");
+    status.className = "status";
+    status.textContent = item.status;
+
+    baris.append(nama, nominal, alasan, status);
+    daftar.appendChild(baris);
+  });
+
+  document.getElementById("totalMenunggu").textContent =
+    pengajuan.length + " pengajuan";
+
+  document.getElementById("totalKaryawan").textContent =
+    new Set(pengajuan.map(item => item.nama.toLocaleLowerCase("id-ID"))).size
+    + " orang";
+
+  document.getElementById("totalAktif").textContent = formatRupiah(
+    pengajuan
+      .filter(item => item.status === "Disetujui")
+      .reduce((total, item) => total + item.jumlah, 0)
+  );
+}
+</script>
 </body>
 </html>

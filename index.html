@@ -184,5 +184,19 @@ function renderPengajuan() {
   );
 }
 </script>
+  
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const SUPABASE_URL = 'https://qrckelcycunlmyqjhpjq.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_QPh6QunIEbvGmbsM8wjCFQ_LQvXPuaU';
+
+  const supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+  console.log('Koneksi Supabase siap digunakan');
+</script>
+
 </body>
 </html>

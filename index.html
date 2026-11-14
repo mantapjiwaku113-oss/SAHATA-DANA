@@ -158,7 +158,8 @@ document.getElementById("batal").addEventListener("click", () => {
   areaForm.hidden = true;
 });
 
-form.addEventListener("submit", event => {
+  
+form.addEventListener("submit", async event => {
   event.preventDefault();
 
   const nama = document.getElementById("nama").value.trim();
@@ -170,15 +171,55 @@ form.addEventListener("submit", event => {
     return;
   }
 
-  pengajuan.push({
-    nama, jumlah, alasan, status:"Menunggu persetujuan"
-  });
+  const { data: sesiData, error: sesiError } =
+    await supabaseClient.auth.getUser();
 
-  renderPengajuan();
-  form.reset();
-  areaForm.hidden = true;
-  alert("Pengajuan ditambahkan ke tampilan. Data masih sementara di browser.");
+  if (sesiError || !sesiData.user) {
+    alert("Sesi login tidak ditemukan. Silakan login kembali.");
+    return;
+  }
+
+  const tombolSimpan = form.querySelector('button[type="submit"]');
+  tombolSimpan.disabled = true;
+
+  try {
+    const { data, error } = await supabaseClient
+      .from("pengajuan_kasbon")
+      .insert({
+        user_id: sesiData.user.id,
+        nama_karyawan: nama,
+        jumlah_kasbon: jumlah,
+        alasan: alasan
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    pengajuan.push({
+      nama: data.nama_karyawan,
+      jumlah: Number(data.jumlah_kasbon),
+      alasan: data.alasan,
+      status: data.status
+    });
+
+    renderPengajuan();
+    form.reset();
+    areaForm.hidden = true;
+
+    if (typeof perbaruiRincianKasbon === "function") {
+      perbaruiRincianKasbon();
+    }
+
+    alert("Pengajuan berhasil disimpan ke database Supabase.");
+  } catch (error) {
+    console.error("Gagal menyimpan pengajuan:", error);
+    alert("Pengajuan gagal disimpan: " + error.message);
+  } finally {
+    tombolSimpan.disabled = false;
+  }
 });
+
 
 function renderPengajuan() {
   const daftar = document.getElementById("daftar");

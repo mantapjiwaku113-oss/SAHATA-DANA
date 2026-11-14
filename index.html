@@ -76,6 +76,21 @@ footer{margin-top:55px;padding:24px 12px;text-align:center;border-top:1px solid 
           <label for="jumlah">Jumlah kasbon (Rp)</label>
           <input id="jumlah" name="jumlah" type="number" required min="1" step="1000" placeholder="Contoh: 500000">
         </div>
+        
+<div class="field" id="rincianBunga" style="background:#f4f6ef;padding:16px;border-radius:12px;">
+  <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
+    <span>Bunga (20%)</span>
+    <strong id="nilaiBunga">Rp 0</strong>
+  </div>
+  <div style="display:flex;justify-content:space-between;border-top:1px solid #dfe4d8;padding-top:10px;">
+    <span>Total yang harus dibayar</span>
+    <strong id="totalBayar" style="color:#176b45;">Rp 0</strong>
+  </div>
+  <small style="display:block;margin-top:10px;color:#687064;">
+    Bunga dihitung satu kali sebesar 20% dari pokok kasbon.
+  </small>
+</div>
+
         <div class="field">
           <label for="alasan">Alasan pengajuan</label>
           <textarea id="alasan" name="alasan" required maxlength="500" placeholder="Tuliskan alasan pengajuan kasbon"></textarea>

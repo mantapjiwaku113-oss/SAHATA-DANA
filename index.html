@@ -200,6 +200,28 @@ function renderPengajuan() {
 }
 </script>
   
+<script>
+  const inputJumlahKasbon = document.getElementById('jumlah');
+  const nilaiBungaKasbon = document.getElementById('nilaiBunga');
+  const totalBayarKasbon = document.getElementById('totalBayar');
+
+  function formatRupiahKasbon(angka) {
+    return 'Rp ' + Math.round(angka).toLocaleString('id-ID');
+  }
+
+  function perbaruiRincianKasbon() {
+    const pokok = Math.max(0, Number(inputJumlahKasbon.value) || 0);
+    const bunga = pokok * 0.20;
+    const total = pokok + bunga;
+
+    nilaiBungaKasbon.textContent = formatRupiahKasbon(bunga);
+    totalBayarKasbon.textContent = formatRupiahKasbon(total);
+  }
+
+  inputJumlahKasbon.addEventListener('input', perbaruiRincianKasbon);
+  perbaruiRincianKasbon();
+</script>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
   const SUPABASE_URL = 'https://qrckelcycunlmyqjhpjq.supabase.co';

@@ -464,7 +464,7 @@ async function muatPanelAdmin() {
   try {
     const { data: pengajuan, error: errPengajuan } = await supabaseClient
       .from("pengajuan_kasbon")
-      .select("id, user_id, nama_karyawan, jumlah_kasbon, alasan, status, tanggal_pengajuan")
+      .select("id, user_id, nama_karyawan, jumlah_kasbon, alasan, status, tanggal_pengajuan, bunga_persen, jumlah_bunga, total_bayar, jumlah_dibayar, tanggal_pencairan, tanggal_pelunasan")
       .order("tanggal_pengajuan", { ascending: false });
     if (errPengajuan) throw errPengajuan;
     renderDaftarAdmin(pengajuan || []);

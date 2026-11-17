@@ -341,15 +341,32 @@ function perbaruiRingkasan() {
   }
 }
 
+
 async function muatJumlahKaryawan() {
-  const { count, error } = await supabaseClient
-    .from("profiles")
-    .select("id", { count: "exact", head: true })
-    .neq("role", "admin")
-    .eq("account_status", "approved");
-  if (!error) $("totalKaryawan").textContent = (count || 0) + " orang";
-  else $("totalKaryawan").textContent = "—";
+  $("totalKaryawan").textContent = "Memuat...";
+
+  try {
+    const { count, error } = await supabaseClient
+      .from("profiles")
+      .select("id", { count: "exact", head: true })
+      .neq("role", "admin")
+      .eq("account_status", "approved");
+
+    if (error) {
+      console.error("Gagal menghitung karyawan:", error);
+      $("totalKaryawan").textContent = "—";
+      alert("Gagal memuat Total Karyawan: " + error.message);
+      return;
+    }
+
+    $("totalKaryawan").textContent = (count ?? 0) + " orang";
+  } catch (error) {
+    console.error("Kesalahan Total Karyawan:", error);
+    $("totalKaryawan").textContent = "—";
+    alert("Kesalahan Total Karyawan: " + error.message);
+  }
 }
+
 
 function perbaruiRincianKasbon() {
   const pokok = Math.max(0, Number($("jumlah").value) || 0);
@@ -544,12 +561,12 @@ function renderDaftarProfil(items) {
     rincian.textContent = "Peran: " + (item.role || "-") + " · Status akun: " + (item.account_status || "-");
     const tanggal = document.createElement("div");
     tanggal.className = "request-meta";
-    tanggal.textContent = "Terdaftar: " + (item.created_at ? new Date(item.created_at).toLocaleDateString("id-ID") : "-");
+    tanggal.textContent = "Terdaftar: " t_status)) {
+      const aksi = document.createElement("div");+ (item.created_at ? new Date(item.created_at).toLocaleDateString("id-ID") : "-");
     baris.append(judul, rincian, tanggal);
 
     // Hanya akun employee yang dapat diubah statusnya dari panel ini.
-    if (item.role === "employee" && ["pending", "rejected"].includes(item.account_status)) {
-      const aksi = document.createElement("div");
+    if (item.role === "employee" && ["pending", "rejected"].includes(item.accoun
       aksi.className = "row-actions";
       aksi.style.marginTop = "12px";
       const setuju = document.createElement("button");

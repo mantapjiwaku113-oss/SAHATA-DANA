@@ -546,8 +546,56 @@ function renderDaftarProfil(items) {
     tanggal.className = "request-meta";
     tanggal.textContent = "Terdaftar: " + (item.created_at ? new Date(item.created_at).toLocaleDateString("id-ID") : "-");
     baris.append(judul, rincian, tanggal);
+
+    // Hanya akun employee yang dapat diubah statusnya dari panel ini.
+    if (item.role === "employee" && ["pending", "rejected"].includes(item.account_status)) {
+      const aksi = document.createElement("div");
+      aksi.className = "row-actions";
+      aksi.style.marginTop = "12px";
+      const setuju = document.createElement("button");
+      setuju.type = "button";
+      setuju.className = "small";
+      setuju.textContent = item.account_status === "rejected" ? "Aktifkan" : "Setujui";
+      setuju.addEventListener("click", () => ubahStatusAkun(item.id, "approved", setuju));
+      aksi.appendChild(setuju);
+
+      if (item.account_status === "pending") {
+        const tolak = document.createElement("button");
+        tolak.type = "button";
+        tolak.className = "small danger";
+        tolak.textContent = "Tolak";
+        tolak.addEventListener("click", () => ubahStatusAkun(item.id, "rejected", tolak));
+        aksi.appendChild(tolak);
+      }
+      baris.appendChild(aksi);
+    }
     daftar.appendChild(baris);
   });
+}
+
+async function ubahStatusAkun(id, statusBaru, tombol) {
+  if (profilSaatIni?.role !== "admin" || profilSaatIni?.account_status !== "approved") {
+    pesan($("pesanAdmin"), "Hanya admin aktif yang dapat mengubah status akun.", "error");
+    return;
+  }
+  const labelStatus = statusBaru === "approved" ? "menyetujui/mengaktifkan" : "menolak";
+  if (!confirm("Yakin ingin " + labelStatus + " akun karyawan ini?")) return;
+
+  tombol.disabled = true;
+  pesan($("pesanAdmin"), "Memperbarui status akun...");
+  try {
+    const { error } = await supabaseClient.rpc("admin_set_employee_status", {
+      p_user_id: id,
+      p_status: statusBaru
+    });
+    if (error) throw error;
+    pesan($("pesanAdmin"), "Status akun berhasil diubah menjadi " + statusBaru + ".", "success");
+    await muatPanelAdmin();
+    await muatJumlahKaryawan();
+  } catch (error) {
+    pesan($("pesanAdmin"), "Status akun gagal diubah: " + error.message + ". Pastikan fungsi admin_set_employee_status sudah dibuat di Supabase.", "error");
+    tombol.disabled = false;
+  }
 }
 
 async function ubahStatusPengajuan(id, statusBaru, tombol) {

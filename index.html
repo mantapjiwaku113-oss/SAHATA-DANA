@@ -698,11 +698,30 @@ async function ubahStatusPengajuan(id, statusBaru, tombol) {
   pesan($("pesanAdmin"), "Memperbarui status pengajuan...");
 
   try {
+    // Saat pelunasan, catat total yang harus dibayar sebagai jumlah dibayar.
+    // Gunakan ini hanya setelah admin memastikan seluruh kewajiban benar-benar lunas.
+    if (statusBaru === "Lunas") {
+      const { data: pengajuan, error: errorPengajuan } = await supabaseClient
+        .from("pengajuan_kasbon")
+        .select("total_bayar")
+        .eq("id", id)
+        .maybeSingle();
+
+      if (errorPengajuan) throw errorPengajuan;
+      if (!pengajuan) throw new Error("Data pengajuan kasbon tidak ditemukan.");
+
+      const totalBayar = Number(pengajuan.total_bayar);
+      if (!Number.isFinite(totalBayar) || totalBayar <= 0) {
+        throw new Error("Total pembayaran tidak valid. Periksa kolom total_bayar.");
+      }
+      perubahan.jumlah_dibayar = totalBayar;
+    }
+
     const { data, error } = await supabaseClient
       .from("pengajuan_kasbon")
       .update(perubahan)
       .eq("id", id)
-      .select("id, status")
+      .select("id, status, jumlah_dibayar")
       .maybeSingle();
 
     if (error) throw error;

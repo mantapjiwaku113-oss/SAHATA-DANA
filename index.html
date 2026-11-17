@@ -124,7 +124,8 @@ footer{margin-top:48px;padding:22px 12px;text-align:center;border-top:1px solid 
           </div>
           <div class="field">
             <label for="jumlah">Jumlah kasbon (Rp)</label>
-            <input id="jumlah" name="jumlah" type="number" required min="1" step="1000" placeholder="Contoh: 500000">
+            <input id="jumlah" name="jumlah" type="number" required min="1000" step="1000" inputmode="numeric" placeholder="Contoh: 1000000">
+            <small style="display:block;margin-top:7px;color:#687064">Nominal harus kelipatan Rp1.000, misalnya 1.000.000 atau 2.500.000.</small>
           </div>
           <div class="field" style="background:#f4f6ef;padding:15px;border-radius:10px">
             <div style="display:flex;justify-content:space-between;gap:10px;margin-bottom:10px"><span>Bunga (20%)</span><strong id="nilaiBunga">Rp 0</strong></div>
@@ -383,7 +384,7 @@ async function muatJumlahKaryawan() {
 
 function perbaruiRincianKasbon() {
   const pokok = Math.max(0, Number($("jumlah").value) || 0);
-  const bunga = pokok * 0.20;
+  const bunga = Math.round(pokok * 0.20);
   $("nilaiBunga").textContent = formatRupiah(bunga);
   $("totalBayar").textContent = formatRupiah(pokok + bunga);
 }
@@ -439,8 +440,13 @@ $("formKasbon").addEventListener("submit", async event => {
   const nama = $("nama").value.trim();
   const jumlah = Number($("jumlah").value);
   const alasan = $("alasan").value.trim();
-  if (!nama || !Number.isSafeInteger(jumlah) || jumlah < 1 || !alasan) {
-    pesan($("pesanForm"), "Periksa kembali semua isian.", "error");
+  if (!nama || !alasan) {
+    pesan($("pesanForm"), "Lengkapi nama karyawan dan alasan pengajuan.", "error");
+    return;
+  }
+  if (!Number.isSafeInteger(jumlah) || jumlah < 1000 || jumlah % 1000 !== 0) {
+    pesan($("pesanForm"), "Nominal kasbon harus berupa angka bulat kelipatan Rp1.000. Contoh: 1000000.", "error");
+    $("jumlah").focus();
     return;
   }
 

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SAHATA DANA — Employee Finance</title>
+<title>SAHATA DANA — Sistem Kasbon Karyawan</title>
 <style>
 :root{--green:#173f35;--green2:#176b45;--paper:#f8f8f4;--line:#e5e8df;--muted:#788078;--danger:#a83333;--amber:#956c25}
 *{box-sizing:border-box}
@@ -75,7 +75,7 @@ footer{margin-top:48px;padding:22px 12px;text-align:center;border-top:1px solid 
   <section id="halamanLogin" class="login-wrap">
     <div class="login-card">
       <h1 class="login-title">SAHATA DANA</h1>
-      <p class="login-desc">Masuk atau daftar akun karyawan</p>
+      <p class="login-desc">Masuk atau daftar akun karyawan. Akun baru perlu persetujuan admin.</p>
       <form id="formLogin">
         <div class="field" id="bagianNamaDaftar" hidden>
           <label for="namaDaftar">Nama lengkap</label>
@@ -176,7 +176,7 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const $ = id => document.getElementById(id);
 const formatRupiah = angka => new Intl.NumberFormat("id-ID", {
-  style: "currency", currency: "IDR", maximumFractionDigits: 0
+  style: "currency", currency: "IDR", maximumFractionDigits: 2, minimumFractionDigits: 0
 }).format(Number(angka) || 0);
 
 let modeAuth = "login";
@@ -261,7 +261,7 @@ async function muatPengajuan() {
   try {
     let query = supabaseClient
       .from("pengajuan_kasbon")
-      .select("id, user_id, nama_karyawan, jumlah_kasbon, alasan, status, tanggal_pengajuan, bunga_persen, jumlah_bunga, total_bayar")
+      .select("id, user_id, nama_karyawan, jumlah_kasbon, alasan, status, tanggal_pengajuan, bunga_persen, jumlah_bunga, total_bayar, jumlah_dibayar, tanggal_pencairan, tanggal_pelunasan")
       .order("tanggal_pengajuan", { ascending: false });
 
     if (profilSaatIni?.role !== "admin") {
@@ -316,6 +316,19 @@ function renderPengajuanDashboard() {
     status.textContent = item.status || "Status tidak tersedia";
 
     baris.append(judul, rincian, tanggal, status);
+
+    const totalBayarItem = Number(item.total_bayar || 0);
+    const sudahDibayarItem = Number(item.jumlah_dibayar || 0);
+    const pembayaran = document.createElement("div");
+    pembayaran.className = "request-meta";
+    pembayaran.style.marginTop = "8px";
+    pembayaran.style.whiteSpace = "pre-line";
+    pembayaran.textContent =
+      "Bunga: " + formatRupiah(item.jumlah_bunga) + "\n" +
+      "Total pembayaran: " + formatRupiah(totalBayarItem) + "\n" +
+      "Sudah dibayar: " + formatRupiah(sudahDibayarItem) + "\n" +
+      "Sisa pembayaran: " + formatRupiah(Math.max(0, totalBayarItem - sudahDibayarItem));
+    baris.appendChild(pembayaran);
     daftar.appendChild(baris);
   });
 }
@@ -329,7 +342,7 @@ function kelasStatus(status) {
 function perbaruiRingkasan() {
   const menunggu = pengajuanSaatIni.filter(x => x.status === "Menunggu Persetujuan").length;
   const aktif = pengajuanSaatIni
-    .filter(x => x.status === "Disetujui")
+    .filter(x => ["Disetujui", "Dicairkan"].includes(x.status))
     .reduce((total, x) => total + (Number(x.jumlah_kasbon) || 0), 0);
   $("totalAktif").textContent = formatRupiah(aktif);
   $("totalMenunggu").textContent = menunggu + " pengajuan";
@@ -532,7 +545,21 @@ function renderDaftarAdmin(items) {
       );
     baris.appendChild(pembayaran);
 
-    
+    if (item.tanggal_pencairan || item.tanggal_pelunasan) {
+      const tanggalStatus = document.createElement("div");
+      tanggalStatus.className = "request-meta";
+      const bagianTanggal = [];
+      if (item.tanggal_pencairan) {
+        bagianTanggal.push("Dicairkan: " + new Date(item.tanggal_pencairan).toLocaleString("id-ID"));
+      }
+      if (item.tanggal_pelunasan) {
+        bagianTanggal.push("Dilunasi: " + new Date(item.tanggal_pelunasan).toLocaleString("id-ID"));
+      }
+      tanggalStatus.textContent = bagianTanggal.join("\n");
+      tanggalStatus.style.whiteSpace = "pre-line";
+      baris.appendChild(tanggalStatus);
+    }
+
 if (
   profilSaatIni?.role === "admin" &&
   profilSaatIni?.account_status === "approved"

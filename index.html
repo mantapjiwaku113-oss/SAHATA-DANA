@@ -519,19 +519,19 @@ function renderDaftarAdmin(items) {
     status.textContent = item.status || "Status tidak tersedia";
     baris.append(judul, rincian, tanggal, status);
 
-const pembayaran = document.createElement("div");
-pembayaran.className = "request-meta";
-pembayaran.style.marginTop = "10px";
-pembayaran.style.whiteSpace = "pre-line";
-pembayaran.textContent =
-  "Bunga: " + formatRupiah(item.jumlah_bunga) + "\n" +
-  "Total pembayaran: " + formatRupiah(item.total_bayar) + "\n" +
-  "Sudah dibayar: " + formatRupiah(item.jumlah_dibayar) + "\n" +
-  "Sisa pembayaran: " + formatRupiah(
-    Math.max(0, Number(item.total_bayar || 0) - Number(item.jumlah_dibayar || 0))
-  );
+    const pembayaran = document.createElement("div");
+    pembayaran.className = "request-meta";
+    pembayaran.style.marginTop = "10px";
+    pembayaran.style.whiteSpace = "pre-line";
+    pembayaran.textContent =
+      "Bunga: " + formatRupiah(item.jumlah_bunga) + "\n" +
+      "Total pembayaran: " + formatRupiah(item.total_bayar) + "\n" +
+      "Sudah dibayar: " + formatRupiah(item.jumlah_dibayar) + "\n" +
+      "Sisa pembayaran: " + formatRupiah(
+        Math.max(0, Number(item.total_bayar || 0) - Number(item.jumlah_dibayar || 0))
+      );
+    baris.appendChild(pembayaran);
 
-baris.appendChild(pembayaran);
     
 if (
   profilSaatIni?.role === "admin" &&

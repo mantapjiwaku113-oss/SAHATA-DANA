@@ -519,23 +519,60 @@ function renderDaftarAdmin(items) {
     status.textContent = item.status || "Status tidak tersedia";
     baris.append(judul, rincian, tanggal, status);
 
-    if (item.status === "Menunggu Persetujuan") {
-      const aksi = document.createElement("div");
-      aksi.className = "row-actions";
-      aksi.style.marginTop = "12px";
-      const setuju = document.createElement("button");
-      setuju.type = "button";
-      setuju.className = "small";
-      setuju.textContent = "Setujui";
-      setuju.addEventListener("click", () => ubahStatusPengajuan(item.id, "Disetujui", setuju));
-      const tolak = document.createElement("button");
-      tolak.type = "button";
-      tolak.className = "small danger";
-      tolak.textContent = "Tolak";
-      tolak.addEventListener("click", () => ubahStatusPengajuan(item.id, "Ditolak", tolak));
-      aksi.append(setuju, tolak);
-      baris.appendChild(aksi);
-    }
+    
+if (
+  profilSaatIni?.role === "admin" &&
+  profilSaatIni?.account_status === "approved"
+) {
+  const aksi = document.createElement("div");
+  aksi.className = "row-actions";
+  aksi.style.marginTop = "12px";
+
+  if (item.status === "Menunggu Persetujuan") {
+    const setuju = document.createElement("button");
+    setuju.type = "button";
+    setuju.className = "small";
+    setuju.textContent = "Setujui";
+    setuju.addEventListener("click", () =>
+      ubahStatusPengajuan(item.id, "Disetujui", setuju)
+    );
+
+    const tolak = document.createElement("button");
+    tolak.type = "button";
+    tolak.className = "small danger";
+    tolak.textContent = "Tolak";
+    tolak.addEventListener("click", () =>
+      ubahStatusPengajuan(item.id, "Ditolak", tolak)
+    );
+
+    aksi.append(setuju, tolak);
+  } else if (item.status === "Disetujui") {
+    const cairkan = document.createElement("button");
+    cairkan.type = "button";
+    cairkan.className = "small";
+    cairkan.textContent = "Tandai Dicairkan";
+    cairkan.addEventListener("click", () =>
+      ubahStatusPengajuan(item.id, "Dicairkan", cairkan)
+    );
+
+    aksi.appendChild(cairkan);
+  } else if (item.status === "Dicairkan") {
+    const lunas = document.createElement("button");
+    lunas.type = "button";
+    lunas.className = "small";
+    lunas.textContent = "Tandai Lunas";
+    lunas.addEventListener("click", () =>
+      ubahStatusPengajuan(item.id, "Lunas", lunas)
+    );
+
+    aksi.appendChild(lunas);
+  }
+
+  if (aksi.childElementCount > 0) {
+    baris.appendChild(aksi);
+  }
+}
+
     daftar.appendChild(baris);
   });
 }

@@ -580,6 +580,7 @@ if (
 function renderDaftarProfil(items) {
   const daftar = $("daftarProfil");
   daftar.replaceChildren();
+
   if (!items.length) {
     const kosong = document.createElement("div");
     kosong.className = "empty";
@@ -587,25 +588,31 @@ function renderDaftarProfil(items) {
     daftar.appendChild(kosong);
     return;
   }
+
   items.forEach(item => {
     const baris = document.createElement("div");
     baris.className = "request";
+
     const judul = document.createElement("div");
     judul.className = "request-title";
     judul.textContent = item.full_name || "(Nama belum diisi)";
+
     const rincian = document.createElement("div");
     rincian.className = "request-meta";
     rincian.textContent = "Peran: " + (item.role || "-") + " · Status akun: " + (item.account_status || "-");
+
     const tanggal = document.createElement("div");
     tanggal.className = "request-meta";
-    tanggal.textContent = "Terdaftar: " t_status)) {
-      const aksi = document.createElement("div");+ (item.created_at ? new Date(item.created_at).toLocaleDateString("id-ID") : "-");
+    tanggal.textContent = "Terdaftar: " + (item.created_at ? new Date(item.created_at).toLocaleDateString("id-ID") : "-");
+
     baris.append(judul, rincian, tanggal);
 
-    // Hanya akun employee yang dapat diubah statusnya dari panel ini.
-    if (item.role === "employee" && ["pending", "rejected"].includes(item.accoun
+    // Hanya akun employee berstatus pending/rejected yang dapat diubah di panel ini.
+    if (item.role === "employee" && ["pending", "rejected"].includes(item.account_status)) {
+      const aksi = document.createElement("div");
       aksi.className = "row-actions";
       aksi.style.marginTop = "12px";
+
       const setuju = document.createElement("button");
       setuju.type = "button";
       setuju.className = "small";
@@ -621,8 +628,10 @@ function renderDaftarProfil(items) {
         tolak.addEventListener("click", () => ubahStatusAkun(item.id, "rejected", tolak));
         aksi.appendChild(tolak);
       }
+
       baris.appendChild(aksi);
     }
+
     daftar.appendChild(baris);
   });
 }

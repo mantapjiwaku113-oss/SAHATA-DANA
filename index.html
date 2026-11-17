@@ -615,35 +615,76 @@ async function ubahStatusAkun(id, statusBaru, tombol) {
   }
 }
 
+
 async function ubahStatusPengajuan(id, statusBaru, tombol) {
-  if (profilSaatIni?.role !== "admin") {
-    alert("Akses admin tidak diizinkan.");
+  if (
+    profilSaatIni?.role !== "admin" ||
+    profilSaatIni?.account_status !== "approved"
+  ) {
+    alert("Hanya admin aktif yang boleh mengubah status pengajuan.");
     return;
   }
-  const konfirmasi = statusBaru === "Disetujui"
-    ? "Setujui pengajuan kasbon ini?"
-    : "Tolak pengajuan kasbon ini?";
+
+  const perubahan = {
+    status: statusBaru
+  };
+
+  let konfirmasi = "";
+
+  if (statusBaru === "Disetujui") {
+    konfirmasi = "Setujui pengajuan kasbon ini?";
+  } else if (statusBaru === "Ditolak") {
+    konfirmasi = "Tolak pengajuan kasbon ini?";
+  } else if (statusBaru === "Dicairkan") {
+    konfirmasi = "Pastikan uang kasbon benar-benar sudah diberikan. Tandai Dicairkan?";
+    perubahan.tanggal_pencairan = new Date().toISOString();
+  } else if (statusBaru === "Lunas") {
+    konfirmasi = "Pastikan seluruh kewajiban kasbon sudah dibayar. Tandai Lunas?";
+    perubahan.tanggal_pelunasan = new Date().toISOString();
+  } else {
+    alert("Status pengajuan tidak dikenal.");
+    return;
+  }
+
   if (!confirm(konfirmasi)) return;
 
   tombol.disabled = true;
   pesan($("pesanAdmin"), "Memperbarui status pengajuan...");
+
   try {
     const { data, error } = await supabaseClient
       .from("pengajuan_kasbon")
-      .update({ status: statusBaru })
+      .update(perubahan)
       .eq("id", id)
       .select("id, status")
       .maybeSingle();
+
     if (error) throw error;
-    if (!data) throw new Error("Tidak ada baris yang berubah. Periksa kebijakan UPDATE/RLS di Supabase.");
-    pesan($("pesanAdmin"), "Status pengajuan diperbarui menjadi " + statusBaru + ".", "success");
+
+    if (!data) {
+      throw new Error(
+        "Tidak ada baris yang berubah. Periksa kebijakan UPDATE/RLS di Supabase."
+      );
+    }
+
+    pesan(
+      $("pesanAdmin"),
+      "Status pengajuan diperbarui menjadi " + statusBaru + ".",
+      "success"
+    );
+
     await muatPengajuan();
     await muatPanelAdmin();
   } catch (error) {
-    pesan($("pesanAdmin"), "Status gagal diperbarui: " + error.message, "error");
+    pesan(
+      $("pesanAdmin"),
+      "Status gagal diperbarui: " + error.message,
+      "error"
+    );
     tombol.disabled = false;
   }
 }
+
 
 $("tombolDaftar").addEventListener("click", () => {
   aturModeAuth(modeAuth === "login" ? "daftar" : "login");

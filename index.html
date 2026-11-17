@@ -597,15 +597,15 @@ if (
 
     aksi.appendChild(cairkan);
   } else if (item.status === "Dicairkan") {
-    const lunas = document.createElement("button");
-    lunas.type = "button";
-    lunas.className = "small";
-    lunas.textContent = "Tandai Lunas";
-    lunas.addEventListener("click", () =>
-      ubahStatusPengajuan(item.id, "Lunas", lunas)
+    const bayar = document.createElement("button");
+    bayar.type = "button";
+    bayar.className = "small";
+    bayar.textContent = "Catat Pembayaran";
+    bayar.addEventListener("click", () =>
+      catatPembayaranKasbon(item.id, bayar)
     );
 
-    aksi.appendChild(lunas);
+    aksi.appendChild(bayar);
   }
 
   if (aksi.childElementCount > 0) {
@@ -711,10 +711,12 @@ async function ubahStatusPengajuan(id, statusBaru, tombol) {
     return;
   }
 
-  const perubahan = {
-    status: statusBaru
-  };
+  if (statusBaru === "Lunas") {
+    alert("Jangan menandai Lunas secara langsung. Gunakan Catat Pembayaran agar jumlah pembayaran dihitung dengan benar.");
+    return;
+  }
 
+  const perubahan = { status: statusBaru };
   let konfirmasi = "";
 
   if (statusBaru === "Disetujui") {
@@ -724,9 +726,6 @@ async function ubahStatusPengajuan(id, statusBaru, tombol) {
   } else if (statusBaru === "Dicairkan") {
     konfirmasi = "Pastikan uang kasbon benar-benar sudah diberikan. Tandai Dicairkan?";
     perubahan.tanggal_pencairan = new Date().toISOString();
-  } else if (statusBaru === "Lunas") {
-    konfirmasi = "Pastikan seluruh kewajiban kasbon sudah dibayar. Tandai Lunas?";
-    perubahan.tanggal_pelunasan = new Date().toISOString();
   } else {
     alert("Status pengajuan tidak dikenal.");
     return;
@@ -738,38 +737,16 @@ async function ubahStatusPengajuan(id, statusBaru, tombol) {
   pesan($("pesanAdmin"), "Memperbarui status pengajuan...");
 
   try {
-    // Saat pelunasan, catat total yang harus dibayar sebagai jumlah dibayar.
-    // Gunakan ini hanya setelah admin memastikan seluruh kewajiban benar-benar lunas.
-    if (statusBaru === "Lunas") {
-      const { data: pengajuan, error: errorPengajuan } = await supabaseClient
-        .from("pengajuan_kasbon")
-        .select("total_bayar")
-        .eq("id", id)
-        .maybeSingle();
-
-      if (errorPengajuan) throw errorPengajuan;
-      if (!pengajuan) throw new Error("Data pengajuan kasbon tidak ditemukan.");
-
-      const totalBayar = Number(pengajuan.total_bayar);
-      if (!Number.isFinite(totalBayar) || totalBayar <= 0) {
-        throw new Error("Total pembayaran tidak valid. Periksa kolom total_bayar.");
-      }
-      perubahan.jumlah_dibayar = totalBayar;
-    }
-
     const { data, error } = await supabaseClient
       .from("pengajuan_kasbon")
       .update(perubahan)
       .eq("id", id)
-      .select("id, status, jumlah_dibayar")
+      .select("id, status")
       .maybeSingle();
 
     if (error) throw error;
-
     if (!data) {
-      throw new Error(
-        "Tidak ada baris yang berubah. Periksa kebijakan UPDATE/RLS di Supabase."
-      );
+      throw new Error("Tidak ada baris yang berubah. Periksa kebijakan UPDATE/RLS di Supabase.");
     }
 
     pesan(
@@ -777,7 +754,6 @@ async function ubahStatusPengajuan(id, statusBaru, tombol) {
       "Status pengajuan diperbarui menjadi " + statusBaru + ".",
       "success"
     );
-
     await muatPengajuan();
     await muatPanelAdmin();
   } catch (error) {
@@ -790,6 +766,60 @@ async function ubahStatusPengajuan(id, statusBaru, tombol) {
   }
 }
 
+async function catatPembayaranKasbon(id, tombol) {
+  if (
+    profilSaatIni?.role !== "admin" ||
+    profilSaatIni?.account_status !== "approved"
+  ) {
+    pesan($("pesanAdmin"), "Hanya admin aktif yang boleh mencatat pembayaran.", "error");
+    return;
+  }
+
+  const masukan = prompt("Masukkan nominal pembayaran cicilan (Rupiah):");
+  if (masukan === null) return;
+
+  const jumlah = Number(masukan.trim());
+  if (!Number.isSafeInteger(jumlah) || jumlah <= 0) {
+    pesan($("pesanAdmin"), "Nominal harus berupa angka Rupiah bulat yang lebih besar dari nol.", "error");
+    return;
+  }
+
+  if (!confirm("Catat pembayaran sebesar " + formatRupiah(jumlah) + "?")) return;
+
+  tombol.disabled = true;
+  pesan($("pesanAdmin"), "Mencatat pembayaran...");
+
+  try {
+    const { data, error } = await supabaseClient.rpc("catat_pembayaran_kasbon", {
+      p_pengajuan_id: id,
+      p_jumlah: jumlah
+    });
+
+    if (error) throw error;
+    if (!data || typeof data !== "object") {
+      throw new Error("Hasil pembayaran tidak dapat dibaca. Muat ulang data sebelum mencoba lagi.");
+    }
+
+    pesan(
+      $("pesanAdmin"),
+      "Pembayaran berhasil dicatat. Total dibayar: " +
+        formatRupiah(data.jumlah_dibayar) +
+        " · Sisa tagihan: " +
+        formatRupiah(data.sisa_tagihan) +
+        " · Status: " + data.status + ".",
+      "success"
+    );
+    await muatPengajuan();
+    await muatPanelAdmin();
+  } catch (error) {
+    pesan(
+      $("pesanAdmin"),
+      "Pembayaran gagal dicatat: " + error.message,
+      "error"
+    );
+    tombol.disabled = false;
+  }
+}
 
 $("tombolDaftar").addEventListener("click", () => {
   aturModeAuth(modeAuth === "login" ? "daftar" : "login");

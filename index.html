@@ -50,6 +50,11 @@ hr{border:0;border-top:1px solid var(--line);margin:22px 0}
 .notice{margin-top:12px;font-size:13px;line-height:1.5}
 .notice.error{color:var(--danger)}
 .notice.success{color:var(--green2)}
+.history-panel{margin-top:12px;padding:12px;background:#f7f9f4;border:1px solid var(--line);border-radius:9px}
+.history-panel-title{font-weight:bold;font-size:13px;margin-bottom:8px}
+.history-item{padding:9px 0;border-bottom:1px solid var(--line);font-size:13px;line-height:1.5}
+.history-item:last-child{border-bottom:0}
+.history-item-amount{font-weight:bold;color:var(--green2)}
 .login-wrap{max-width:440px;margin:28px auto}
 .login-card{padding:26px}
 .login-title{text-align:center;color:var(--green2);margin-bottom:8px}
@@ -330,6 +335,17 @@ function renderPengajuanDashboard() {
       "Sudah dibayar: " + formatRupiah(sudahDibayarItem) + "\n" +
       "Sisa pembayaran: " + formatRupiah(Math.max(0, totalBayarItem - sudahDibayarItem));
     baris.appendChild(pembayaran);
+
+    const riwayatButton = document.createElement("button");
+    riwayatButton.type = "button";
+    riwayatButton.className = "small secondary";
+    riwayatButton.style.marginTop = "10px";
+    riwayatButton.textContent = "Riwayat Pembayaran";
+    riwayatButton.addEventListener("click", () =>
+      toggleRiwayatPembayaran(item.id, baris, riwayatButton)
+    );
+    baris.appendChild(riwayatButton);
+
     daftar.appendChild(baris);
   });
 }
@@ -614,6 +630,15 @@ if (
     aksi.appendChild(bayar);
   }
 
+  const riwayatButton = document.createElement("button");
+  riwayatButton.type = "button";
+  riwayatButton.className = "small secondary";
+  riwayatButton.textContent = "Riwayat Pembayaran";
+  riwayatButton.addEventListener("click", () =>
+    toggleRiwayatPembayaran(item.id, baris, riwayatButton)
+  );
+  aksi.appendChild(riwayatButton);
+
   if (aksi.childElementCount > 0) {
     baris.appendChild(aksi);
   }
@@ -824,6 +849,70 @@ async function catatPembayaranKasbon(id, tombol) {
       "error"
     );
     tombol.disabled = false;
+  }
+}
+
+async function toggleRiwayatPembayaran(pengajuanId, wadah, tombol) {
+  const panelLama = wadah.querySelector(".history-panel");
+  if (panelLama) {
+    panelLama.remove();
+    tombol.textContent = "Riwayat Pembayaran";
+    return;
+  }
+
+  const panel = document.createElement("div");
+  panel.className = "history-panel";
+  const judul = document.createElement("div");
+  judul.className = "history-panel-title";
+  judul.textContent = "Riwayat Pembayaran";
+  const isi = document.createElement("div");
+  isi.className = "request-meta";
+  isi.textContent = "Memuat riwayat pembayaran...";
+  panel.append(judul, isi);
+  wadah.appendChild(panel);
+  tombol.textContent = "Tutup Riwayat";
+
+  try {
+    const { data, error } = await supabaseClient
+      .from("riwayat_pembayaran_kasbon")
+      .select("id, jumlah_pembayaran, tanggal_pembayaran, catatan, dicatat_oleh")
+      .eq("pengajuan_id", pengajuanId)
+      .order("tanggal_pembayaran", { ascending: true });
+
+    if (error) throw error;
+    isi.replaceChildren();
+
+    if (!data || data.length === 0) {
+      isi.textContent = "Belum ada transaksi pembayaran yang tercatat.";
+      return;
+    }
+
+    data.forEach((item, index) => {
+      const barisRiwayat = document.createElement("div");
+      barisRiwayat.className = "history-item";
+
+      const tanggal = document.createElement("div");
+      tanggal.textContent = item.tanggal_pembayaran
+        ? new Date(item.tanggal_pembayaran).toLocaleString("id-ID")
+        : "Tanggal tidak tersedia";
+
+      const nominal = document.createElement("div");
+      nominal.className = "history-item-amount";
+      nominal.textContent = "Pembayaran " + (index + 1) + ": " + formatRupiah(item.jumlah_pembayaran);
+
+      barisRiwayat.append(tanggal, nominal);
+
+      if (item.catatan) {
+        const catatan = document.createElement("div");
+        catatan.className = "request-meta";
+        catatan.textContent = item.catatan;
+        barisRiwayat.appendChild(catatan);
+      }
+
+      isi.appendChild(barisRiwayat);
+    });
+  } catch (error) {
+    isi.textContent = "Riwayat gagal dimuat: " + error.message + ". Pastikan skrip SQL riwayat pembayaran sudah dijalankan di Supabase.";
   }
 }
 

@@ -720,6 +720,46 @@ footer{letter-spacing:.25px}
   .card,.finance-table tbody tr{transition:none!important}
 }
 
+
+/* ===== CLICKABLE PROFILE INFO + OBSIDIAN GLASS SOUND FEEDBACK ===== */
+.header-profile-button{position:relative!important;display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;min-width:42px;padding:2px!important;flex:0 0 42px;border-radius:50%!important;overflow:hidden;background:linear-gradient(145deg,rgba(91,220,255,.3),rgba(4,24,48,.9))!important;border:1px solid rgba(132,231,255,.84)!important;box-shadow:0 0 0 3px rgba(45,177,255,.08),0 0 18px rgba(37,178,255,.22),inset 0 1px 0 rgba(255,255,255,.4)!important}
+.header-profile-button[hidden]{display:none!important}
+.header-profile-button img{position:absolute;inset:2px;width:calc(100% - 4px);height:calc(100% - 4px);border-radius:50%;object-fit:cover;z-index:1}
+.header-profile-initial{display:grid;place-items:center;width:100%;height:100%;border-radius:50%;color:#b9f2ff;font-size:15px;font-weight:900;text-shadow:0 0 12px rgba(47,204,255,.7)}
+.header-profile-glint{position:absolute;inset:3px;z-index:2;pointer-events:none;border-radius:50%;border:1px solid rgba(216,249,255,.35);background:linear-gradient(140deg,rgba(255,255,255,.18),transparent 35%,transparent 70%,rgba(79,201,255,.12))}
+.sound-toggle{padding:8px 10px!important;font-size:10px!important;letter-spacing:.65px!important;white-space:nowrap}
+.sound-toggle[aria-pressed="false"]{opacity:.68;color:#9ab5c8;border-color:rgba(130,173,201,.23);background:rgba(7,19,31,.52)}
+.profile-avatar-clickable{cursor:pointer;transition:transform .18s ease,filter .18s ease,box-shadow .18s ease}
+.profile-avatar-clickable:hover,.profile-avatar-clickable:focus-visible{transform:translateY(-2px) scale(1.025);filter:brightness(1.09);outline:2px solid rgba(103,222,255,.85);outline-offset:5px}
+.profile-list-avatar[role="button"]{cursor:pointer;transition:transform .18s ease,filter .18s ease,box-shadow .18s ease}
+.profile-list-avatar[role="button"]:hover,.profile-list-avatar[role="button"]:focus-visible{transform:scale(1.06);filter:brightness(1.12);outline:2px solid rgba(103,222,255,.8);outline-offset:3px}
+.profile-info-dialog{width:min(530px,calc(100vw - 28px));max-width:530px;max-height:min(88vh,760px);padding:0;overflow:auto;color:#e9f8ff;border:1px solid rgba(123,221,255,.43);border-radius:22px;background:linear-gradient(150deg,rgba(9,32,55,.97),rgba(2,10,20,.985) 62%,rgba(3,20,37,.98));box-shadow:0 35px 110px rgba(0,0,0,.72),0 0 46px rgba(0,151,255,.2),inset 0 1px 0 rgba(255,255,255,.12);backdrop-filter:blur(26px);-webkit-backdrop-filter:blur(26px)}
+.profile-info-dialog::backdrop{background:rgba(0,4,12,.78);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px)}
+.profile-info-dialog[open]{animation:profileDialogEnter .22s ease-out both}
+.profile-info-shell{position:relative;padding:22px;overflow:hidden}
+.profile-info-shell::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 5% 0%,rgba(35,180,255,.19),transparent 37%),linear-gradient(130deg,rgba(255,255,255,.045),transparent 36%,transparent 76%,rgba(38,174,255,.055))}
+.profile-info-topline,.profile-info-hero,.profile-info-grid,.profile-info-footnote{position:relative;z-index:1}
+.profile-info-topline{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px}
+.profile-info-kicker{font-size:9px;font-weight:900;letter-spacing:1.7px;color:#7ddfff}
+.profile-dialog-close{min-width:34px;width:34px;height:34px;padding:0!important;display:grid;place-items:center;border-radius:10px!important;font-size:14px!important}
+.profile-info-hero{display:flex;align-items:center;gap:18px;margin-bottom:22px}
+.profile-info-avatar{position:relative;isolation:isolate;width:100px;height:100px;flex:0 0 100px;display:grid;place-items:center;overflow:hidden;border-radius:50%;border:1px solid rgba(165,237,255,.88);background:linear-gradient(145deg,rgba(67,200,255,.24),rgba(3,17,34,.94));box-shadow:0 0 0 5px rgba(49,178,255,.08),0 0 35px rgba(0,174,255,.23),inset 0 0 23px rgba(194,242,255,.18);color:#b5f1ff;font-size:31px;font-weight:900;text-shadow:0 0 16px rgba(64,202,255,.65)}
+.profile-info-avatar img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1}
+.profile-info-avatar-glass{position:absolute;inset:3px;z-index:2;pointer-events:none;border:1px solid rgba(230,251,255,.48);border-radius:50%;background:linear-gradient(145deg,rgba(255,255,255,.22),transparent 37%,transparent 69%,rgba(53,190,255,.14))}
+.profile-info-title-wrap{min-width:0}
+.profile-info-title-wrap h2{margin:0 0 5px;color:#edfbff;font-size:20px;letter-spacing:.15px;overflow-wrap:anywhere}
+.profile-info-title-wrap p{margin:0 0 11px;color:#91b8d1;font-size:11px;line-height:1.5}
+.profile-info-status{display:inline-flex;align-items:center;gap:6px;padding:5px 9px;border:1px solid rgba(77,236,183,.28);border-radius:999px;background:rgba(26,160,121,.12);color:#92f8d1;font-size:10px;font-weight:800;letter-spacing:.35px}
+.profile-info-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.profile-info-field{min-width:0;padding:13px 14px;border:1px solid rgba(116,203,242,.17);border-radius:13px;background:linear-gradient(145deg,rgba(25,77,111,.33),rgba(4,20,37,.46));box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}
+.profile-info-field span{display:block;margin-bottom:7px;color:#86acc4;font-size:9px;letter-spacing:1px;text-transform:uppercase}
+.profile-info-field strong{display:block;color:#e4f7ff;font-size:12px;line-height:1.55;overflow-wrap:anywhere;font-weight:750}
+.profile-info-footnote{display:flex;align-items:flex-start;gap:8px;margin:17px 0 0;color:#7598b2;font-size:10px;line-height:1.55}
+.profile-info-secure-dot{width:6px;height:6px;flex:0 0 6px;margin-top:4px;border-radius:50%;background:#64eec0;box-shadow:0 0 10px rgba(100,238,192,.7)}
+@keyframes profileDialogEnter{from{opacity:0;transform:translateY(8px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
+@media(max-width:540px){.header-actions{gap:5px}.header-profile-button{width:36px;height:36px;min-width:36px;flex-basis:36px}.sound-toggle{padding:7px 8px!important;font-size:9px!important}.profile-info-shell{padding:17px}.profile-info-hero{align-items:center;gap:13px}.profile-info-avatar{width:80px;height:80px;flex-basis:80px}.profile-info-title-wrap h2{font-size:17px}.profile-info-grid{grid-template-columns:1fr}.profile-info-field{padding:11px 12px}}
+@media(prefers-reduced-motion:reduce){.profile-info-dialog[open]{animation:none}.profile-avatar-clickable,.profile-list-avatar[role="button"]{transition:none}}
+
 </style>
 </head>
 <body>
@@ -730,7 +770,13 @@ footer{letter-spacing:.25px}
     <span class="clock-copy"><span class="clock-label">JAKARTA · WIB</span><strong id="jamSistem">--:--:--</strong><small id="tanggalSistem">Memuat tanggal...</small></span>
   </div>
   <div class="header-actions">
+    <button id="tombolInfoProfil" class="header-profile-button" type="button" hidden aria-label="Buka informasi profil" title="Buka informasi profil">
+      <span id="inisialHeaderProfil" class="header-profile-initial">?</span>
+      <img id="fotoHeaderProfil" alt="" hidden>
+      <span class="header-profile-glint" aria-hidden="true"></span>
+    </button>
     <span id="labelAkun" class="header-label" hidden></span>
+    <button id="tombolSuara" class="linklike sound-toggle" type="button" aria-pressed="true" title="Efek suara aktif">🔊 SFX ON</button>
     <button id="tombolAdmin" class="linklike" type="button" hidden>ADMIN</button>
     <button id="tombolKeluar" class="linklike" type="button" hidden>Keluar</button>
   </div>
@@ -775,7 +821,7 @@ footer{letter-spacing:.25px}
         <div><h2>Foto Profil</h2><div class="sub">Tambahkan foto agar akun karyawan lebih mudah dikenali admin.</div></div>
       </div>
       <div class="profile-editor">
-        <div class="profile-avatar-shell">
+        <div class="profile-avatar-shell profile-avatar-clickable" role="button" tabindex="0" aria-label="Klik untuk melihat informasi profil" title="Klik untuk melihat informasi profil">
           <img id="fotoProfilSaya" alt="Foto profil karyawan" hidden>
           <div id="inisialFotoProfil" class="profile-avatar-fallback">?</div>
         </div>
@@ -914,6 +960,27 @@ footer{letter-spacing:.25px}
     </section>
   </section>
 
+  <dialog id="modalInfoProfil" class="profile-info-dialog" aria-labelledby="judulInfoProfil">
+    <div class="profile-info-shell">
+      <div class="profile-info-topline"><span class="profile-info-kicker">SAHATA DANA <span aria-hidden="true">//</span> ACCOUNT IDENTITY</span><button id="tombolTutupInfoProfil" class="profile-dialog-close secondary" type="button" aria-label="Tutup informasi profil" title="Tutup">✕</button></div>
+      <div class="profile-info-hero">
+        <div class="profile-info-avatar">
+          <img id="fotoModalProfil" alt="Foto profil" hidden>
+          <span id="inisialModalProfil">?</span>
+          <span class="profile-info-avatar-glass" aria-hidden="true"></span>
+        </div>
+        <div class="profile-info-title-wrap"><h2 id="judulInfoProfil">Informasi Profil</h2><p id="subjudulInfoProfil">Identitas akun SAHATA DANA</p><span id="statusModalProfil" class="profile-info-status">Status akun</span></div>
+      </div>
+      <div class="profile-info-grid">
+        <div id="barisEmailProfil" class="profile-info-field"><span>Email akun</span><strong id="emailModalProfil">—</strong></div>
+        <div class="profile-info-field"><span>Peran akun</span><strong id="peranModalProfil">—</strong></div>
+        <div class="profile-info-field"><span>Status akun</span><strong id="statusDetailModalProfil">—</strong></div>
+        <div class="profile-info-field"><span>Terdaftar sejak</span><strong id="tanggalModalProfil">—</strong></div>
+      </div>
+      <p class="profile-info-footnote"><span class="profile-info-secure-dot" aria-hidden="true"></span> Foto profil berasal dari penyimpanan privat dan ditampilkan melalui sesi akun yang aktif.</p>
+    </div>
+  </dialog>
+
   <footer>
     <div>SAHATA DANA © 2026 · Sistem Kasbon Karyawan</div>
     <div class="creator">Created with care by</div>
@@ -958,6 +1025,11 @@ let profilKaryawanCache = [];
 let dataLaporanKasbon = [];
 let dataLaporanTerfilter = [];
 let sedangMemuat = false;
+let urlFotoProfilSaya = null;
+let efekSuaraAktif = true;
+let konteksAudioSAHATA = null;
+let waktuEfekTerakhir = 0;
+try { efekSuaraAktif = localStorage.getItem("sahata-dana-sfx") !== "off"; } catch (_) {}
 const BUCKET_FOTO_PROFIL = "foto-profil";
 const BATAS_FOTO_PROFIL = 5 * 1024 * 1024;
 const TIPE_FOTO_PROFIL = {
@@ -987,6 +1059,7 @@ function aturTampilanMasuk() {
   $("tombolAdmin").hidden = true;
   $("tombolKeluar").hidden = true;
   $("labelAkun").hidden = true;
+  $("tombolInfoProfil").hidden = true;
   $("panelAdmin").hidden = true;
   $("panelVerifikasi").hidden = true;
   $("panelFotoProfil").hidden = true;
@@ -998,6 +1071,8 @@ function aturTampilanDashboard() {
   $("tombolKeluar").hidden = false;
   $("labelAkun").hidden = false;
   $("labelAkun").textContent = profilSaatIni?.full_name || penggunaSaatIni?.email || "Pengguna";
+  $("tombolInfoProfil").hidden = false;
+  perbaruiAvatarHeader();
   const adalahAdmin = profilSaatIni?.role === "admin";
   $("panelVerifikasi").hidden = adalahAdmin;
   $("panelFotoProfil").hidden = adalahAdmin;
@@ -1224,6 +1299,12 @@ $("tombolKeluar").addEventListener("click", async () => {
   penggunaSaatIni = null;
   profilSaatIni = null;
   pengajuanSaatIni = [];
+  urlFotoProfilSaya = null;
+  $("fotoHeaderProfil").removeAttribute("src");
+  $("fotoHeaderProfil").hidden = true;
+  $("inisialHeaderProfil").hidden = false;
+  $("inisialHeaderProfil").textContent = "?";
+  tutupInfoProfil();
   aturTampilanMasuk();
   $("formLogin").reset();
   pesan($("pesanLogin"), "Kamu sudah keluar dari akun.");
@@ -1506,6 +1587,129 @@ function amanTeks(teks) {
   }[c]));
 }
 
+function labelPeranProfil(peran) {
+  if (peran === "admin") return "Admin";
+  if (peran === "employee") return "Karyawan";
+  return peran || "Tidak tersedia";
+}
+
+function labelStatusProfil(status) {
+  const label = { approved: "Disetujui / Aktif", pending: "Menunggu Persetujuan", rejected: "Ditolak" };
+  return label[status] || status || "Tidak tersedia";
+}
+
+function bukaInfoProfil(dataProfil = profilSaatIni, urlFoto = null) {
+  if (!dataProfil) return;
+  const akunSendiri = Boolean(penggunaSaatIni && dataProfil.id === penggunaSaatIni.id);
+  const nama = dataProfil.full_name || (akunSendiri ? penggunaSaatIni?.email : null) || "Pengguna SAHATA DANA";
+  const urlAvatar = urlFoto || dataProfil.avatar_url || (akunSendiri ? urlFotoProfilSaya : null);
+  const foto = $("fotoModalProfil");
+  const inisial = $("inisialModalProfil");
+  inisial.textContent = inisialNama(nama);
+  if (urlAvatar) {
+    foto.src = urlAvatar;
+    foto.hidden = false;
+    inisial.hidden = true;
+  } else {
+    foto.removeAttribute("src");
+    foto.hidden = true;
+    inisial.hidden = false;
+  }
+  $("judulInfoProfil").textContent = nama;
+  $("subjudulInfoProfil").textContent = akunSendiri ? "Informasi akun kamu di SAHATA DANA" : "Informasi akun karyawan SAHATA DANA";
+  const email = akunSendiri ? (penggunaSaatIni?.email || dataProfil.email || "Tidak tersedia") : (dataProfil.email || "");
+  $("barisEmailProfil").hidden = !email;
+  $("emailModalProfil").textContent = email || "";
+  const peran = labelPeranProfil(dataProfil.role);
+  const status = labelStatusProfil(dataProfil.account_status);
+  $("peranModalProfil").textContent = peran;
+  $("statusModalProfil").textContent = status;
+  $("statusDetailModalProfil").textContent = status;
+  const tanggalDaftar = dataProfil.created_at || (akunSendiri ? penggunaSaatIni?.created_at : null);
+  $("tanggalModalProfil").textContent = tanggalDaftar && !Number.isNaN(new Date(tanggalDaftar).getTime())
+    ? new Date(tanggalDaftar).toLocaleDateString("id-ID", { day: "2-digit", month: "long", year: "numeric", timeZone: "Asia/Jakarta" })
+    : "Tidak tersedia";
+  const dialog = $("modalInfoProfil");
+  if (!dialog.open) dialog.showModal();
+}
+
+function tutupInfoProfil() {
+  const dialog = $("modalInfoProfil");
+  if (dialog.open) dialog.close();
+}
+
+function putarEfekKaca() {
+  if (!efekSuaraAktif) return;
+  const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
+  if (!AudioContextCtor) return;
+  const sekarangMs = Date.now();
+  if (sekarangMs - waktuEfekTerakhir < 35) return;
+  waktuEfekTerakhir = sekarangMs;
+  try {
+    if (!konteksAudioSAHATA) konteksAudioSAHATA = new AudioContextCtor();
+    if (konteksAudioSAHATA.state === "suspended") konteksAudioSAHATA.resume();
+    const waktu = konteksAudioSAHATA.currentTime;
+    const volume = konteksAudioSAHATA.createGain();
+    const nada = konteksAudioSAHATA.createOscillator();
+    nada.type = "sine";
+    nada.frequency.setValueAtTime(1080, waktu);
+    nada.frequency.exponentialRampToValueAtTime(690, waktu + 0.075);
+    volume.gain.setValueAtTime(0.0001, waktu);
+    volume.gain.exponentialRampToValueAtTime(0.022, waktu + 0.008);
+    volume.gain.exponentialRampToValueAtTime(0.0001, waktu + 0.09);
+    nada.connect(volume);
+    volume.connect(konteksAudioSAHATA.destination);
+    nada.start(waktu);
+    nada.stop(waktu + 0.095);
+
+    const kilau = konteksAudioSAHATA.createOscillator();
+    const kilauGain = konteksAudioSAHATA.createGain();
+    kilau.type = "sine";
+    kilau.frequency.setValueAtTime(1760, waktu);
+    kilau.frequency.exponentialRampToValueAtTime(1260, waktu + 0.045);
+    kilauGain.gain.setValueAtTime(0.0001, waktu);
+    kilauGain.gain.exponentialRampToValueAtTime(0.0055, waktu + 0.006);
+    kilauGain.gain.exponentialRampToValueAtTime(0.0001, waktu + 0.052);
+    kilau.connect(kilauGain);
+    kilauGain.connect(konteksAudioSAHATA.destination);
+    kilau.start(waktu);
+    kilau.stop(waktu + 0.058);
+  } catch (error) {
+    // Efek suara bersifat tambahan; kendala audio tidak boleh mengganggu fungsi aplikasi.
+  }
+}
+
+function perbaruiTombolSuara() {
+  const tombol = $("tombolSuara");
+  if (!tombol) return;
+  tombol.textContent = efekSuaraAktif ? "🔊 SFX ON" : "🔇 SFX OFF";
+  tombol.setAttribute("aria-pressed", efekSuaraAktif ? "true" : "false");
+  tombol.title = efekSuaraAktif ? "Efek suara aktif — klik untuk mematikan" : "Efek suara mati — klik untuk mengaktifkan";
+}
+
+$("tombolInfoProfil").addEventListener("click", () => bukaInfoProfil(profilSaatIni, urlFotoProfilSaya));
+$("tombolTutupInfoProfil").addEventListener("click", tutupInfoProfil);
+$("modalInfoProfil").addEventListener("click", event => {
+  if (event.target === $("modalInfoProfil")) tutupInfoProfil();
+});
+const avatarSayaYangBisaDiklik = $("panelFotoProfil").querySelector(".profile-avatar-shell");
+avatarSayaYangBisaDiklik.addEventListener("click", () => bukaInfoProfil(profilSaatIni, urlFotoProfilSaya));
+avatarSayaYangBisaDiklik.addEventListener("keydown", event => {
+  if (event.key === "Enter" || event.key === " ") { event.preventDefault(); bukaInfoProfil(profilSaatIni, urlFotoProfilSaya); }
+});
+$("tombolSuara").addEventListener("click", () => {
+  efekSuaraAktif = !efekSuaraAktif;
+  try { localStorage.setItem("sahata-dana-sfx", efekSuaraAktif ? "on" : "off"); } catch (_) {}
+  perbaruiTombolSuara();
+  if (efekSuaraAktif) putarEfekKaca();
+});
+perbaruiTombolSuara();
+document.addEventListener("click", event => {
+  const target = event.target instanceof Element ? event.target.closest("button,[role=\"button\"]") : null;
+  if (!target || target.id === "tombolSuara" || target.disabled || target.getAttribute("aria-disabled") === "true") return;
+  putarEfekKaca();
+}, true);
+
 function renderDaftarAdmin(items) {
   const daftar = $("daftarAdmin");
   daftar.replaceChildren();
@@ -1648,6 +1852,14 @@ function renderDaftarProfil(items) {
     kepala.className = "profile-list-head";
     const avatar = document.createElement("div");
     avatar.className = "profile-list-avatar";
+    avatar.setAttribute("role", "button");
+    avatar.setAttribute("tabindex", "0");
+    avatar.setAttribute("aria-label", "Lihat informasi profil " + (item.full_name || "karyawan"));
+    avatar.title = "Klik untuk melihat informasi profil";
+    avatar.addEventListener("click", () => bukaInfoProfil(item, item.avatar_url));
+    avatar.addEventListener("keydown", event => {
+      if (event.key === "Enter" || event.key === " ") { event.preventDefault(); bukaInfoProfil(item, item.avatar_url); }
+    });
     if (item.avatar_url) {
       const gambar = document.createElement("img");
       gambar.src = item.avatar_url;
@@ -1918,12 +2130,29 @@ function ekstensiFotoProfil(file) {
   return TIPE_FOTO_PROFIL[file.type] || null;
 }
 
+function perbaruiAvatarHeader() {
+  const foto = $("fotoHeaderProfil");
+  const inisial = $("inisialHeaderProfil");
+  const nama = profilSaatIni?.full_name || penggunaSaatIni?.email || "Pengguna";
+  inisial.textContent = inisialNama(nama);
+  if (urlFotoProfilSaya) {
+    foto.src = urlFotoProfilSaya;
+    foto.hidden = false;
+    inisial.hidden = true;
+  } else {
+    foto.removeAttribute("src");
+    foto.hidden = true;
+    inisial.hidden = false;
+  }
+}
+
 function tampilkanFotoProfilSaya(url) {
+  urlFotoProfilSaya = url || null;
   const gambar = $("fotoProfilSaya");
   const fallback = $("inisialFotoProfil");
   fallback.textContent = inisialNama(profilSaatIni?.full_name);
-  if (url) {
-    gambar.src = url;
+  if (urlFotoProfilSaya) {
+    gambar.src = urlFotoProfilSaya;
     gambar.hidden = false;
     fallback.hidden = true;
   } else {
@@ -1931,6 +2160,7 @@ function tampilkanFotoProfilSaya(url) {
     gambar.hidden = true;
     fallback.hidden = false;
   }
+  perbaruiAvatarHeader();
 }
 
 async function muatFotoProfilSaya() {

@@ -63,6 +63,24 @@ hr{border:0;border-top:1px solid var(--line);margin:22px 0}
 .profile-list-head{display:flex;align-items:center;gap:12px;margin-bottom:8px}
 .profile-list-avatar{width:54px;height:54px;flex:0 0 54px;border-radius:50%;overflow:hidden;background:#e9eee9;border:1px solid #dce6dd;display:flex;align-items:center;justify-content:center;color:var(--green2);font-weight:bold;font-size:20px}
 .profile-list-avatar img{width:100%;height:100%;object-fit:cover}
+
+.finance-dashboard{margin:8px 0 24px;padding:18px;background:#f8faf7;border:1px solid var(--line);border-radius:12px}
+.finance-dashboard .cards{margin-top:14px;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.finance-dashboard .card{padding:16px}
+.finance-dashboard .number{font-size:20px;margin-top:10px}
+.finance-filters{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:18px 0 12px}
+.finance-filters .field{margin:0}
+.finance-filters label{font-size:12px}
+.finance-actions{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 14px}
+.finance-table-wrap{width:100%;overflow-x:auto;border:1px solid var(--line);border-radius:9px;background:#fff}
+.finance-table{width:100%;border-collapse:collapse;min-width:850px;font-size:12px}
+.finance-table th,.finance-table td{padding:10px 11px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+.finance-table th{background:#f1f5ef;color:#415047;font-weight:bold}
+.finance-table td.money{text-align:right;font-variant-numeric:tabular-nums}
+.finance-table tr:last-child td{border-bottom:0}
+.finance-note{font-size:12px;color:#68736a;line-height:1.5;margin:8px 0 12px}
+@media(max-width:760px){.finance-filters{grid-template-columns:repeat(2,minmax(0,1fr))}.finance-dashboard .cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:480px){.finance-filters{grid-template-columns:1fr}.finance-dashboard .cards{grid-template-columns:1fr}}
 .login-wrap{max-width:440px;margin:28px auto}
 .login-card{padding:26px}
 .login-title{text-align:center;color:var(--green2);margin-bottom:8px}
@@ -72,6 +90,287 @@ footer{margin-top:48px;padding:22px 12px;text-align:center;border-top:1px solid 
 .creator strong{color:var(--green);letter-spacing:1.5px}
 [hidden]{display:none!important}
 @media(max-width:650px){.cards{grid-template-columns:1fr}main{padding:22px 15px}h1{font-size:24px}.number{font-size:22px}.panel{padding:17px}header{padding:17px}.login-card{padding:21px}}
+
+/* ===== SAHATA DANA FUTURISTIC BLUE GLASS THEME ===== */
+:root{
+  color-scheme: dark;
+  --green:#54d9ff;
+  --green2:#28bfff;
+  --paper:#061226;
+  --line:rgba(114,205,255,.22);
+  --muted:#a3bad2;
+  --danger:#ff718e;
+  --amber:#ffd078;
+  --sd-panel:rgba(9,29,57,.62);
+  --sd-panel-strong:rgba(9,31,63,.82);
+  --sd-glow:rgba(42,183,255,.28);
+}
+*{box-sizing:border-box}
+html{min-height:100%;background:#040d1d}
+body{
+  min-height:100vh;
+  margin:0;
+  position:relative;
+  isolation:isolate;
+  overflow-x:hidden;
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+  color:#e9f7ff;
+  background:
+    radial-gradient(ellipse at 12% 8%,rgba(0,146,255,.22),transparent 34%),
+    radial-gradient(ellipse at 88% 18%,rgba(0,220,255,.13),transparent 30%),
+    radial-gradient(ellipse at 52% 100%,rgba(31,90,210,.18),transparent 42%),
+    linear-gradient(135deg,#040d1d 0%,#071a35 48%,#061127 100%);
+  background-attachment:fixed;
+}
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:-1;
+  pointer-events:none;
+  opacity:.34;
+  background-image:
+    linear-gradient(rgba(91,190,255,.075) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(91,190,255,.075) 1px,transparent 1px);
+  background-size:42px 42px;
+  mask-image:linear-gradient(to bottom,rgba(0,0,0,.9),transparent 92%);
+}
+body::after{
+  content:"";
+  position:fixed;
+  width:560px;
+  height:560px;
+  right:-240px;
+  bottom:-280px;
+  z-index:-1;
+  pointer-events:none;
+  border-radius:50%;
+  background:rgba(0,153,255,.16);
+  filter:blur(90px);
+}
+header{
+  position:sticky;
+  top:0;
+  z-index:20;
+  padding:16px clamp(16px,3vw,38px);
+  color:#f1fbff;
+  background:rgba(4,16,35,.76);
+  border-bottom:1px solid rgba(95,196,255,.24);
+  box-shadow:0 12px 34px rgba(0,0,0,.18),inset 0 -1px 0 rgba(255,255,255,.035);
+  backdrop-filter:blur(22px) saturate(160%);
+  -webkit-backdrop-filter:blur(22px) saturate(160%);
+}
+.brand{
+  color:#f1fbff;
+  font-size:21px;
+  letter-spacing:2.7px;
+  font-weight:800;
+  text-shadow:0 0 22px rgba(54,194,255,.34);
+}
+.brand::before{
+  content:"✧";
+  display:inline-block;
+  margin-right:9px;
+  color:#59dcff;
+  text-shadow:0 0 14px rgba(75,210,255,.9);
+}
+.brand small{
+  color:#85cce9;
+  font-size:10px;
+  letter-spacing:2.2px;
+}
+.header-actions{gap:10px}
+.header-label{color:#c9edff;font-size:12px}
+main{max-width:1240px;margin:0 auto;padding:30px clamp(14px,2.6vw,30px) 26px}
+h1,h2{color:#effaff;text-shadow:0 0 18px rgba(55,165,255,.12)}
+h1{font-size:clamp(24px,3vw,32px);letter-spacing:-.5px}
+h2{font-size:18px;letter-spacing:.1px}
+.sub{color:#9dbbd6;font-size:13px;line-height:1.65}
+.cards{gap:14px;margin-top:22px}
+.card,.panel,.login-card{
+  color:#eaf7ff;
+  background:linear-gradient(145deg,rgba(17,48,83,.72),rgba(7,24,48,.68));
+  border:1px solid rgba(115,207,255,.22);
+  border-radius:18px;
+  box-shadow:0 18px 48px rgba(0,0,0,.23),inset 0 1px 0 rgba(255,255,255,.075),0 0 26px rgba(0,140,255,.055);
+  backdrop-filter:blur(19px) saturate(150%);
+  -webkit-backdrop-filter:blur(19px) saturate(150%);
+}
+.card{padding:22px;position:relative;overflow:hidden;transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease}
+.card::before,.panel::before,.login-card::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  border-radius:inherit;
+  background:linear-gradient(125deg,rgba(255,255,255,.075),transparent 34%,transparent 72%,rgba(32,174,255,.035));
+}
+.card:hover{transform:translateY(-3px);border-color:rgba(105,218,255,.42);box-shadow:0 22px 48px rgba(0,0,0,.28),0 0 24px rgba(0,155,255,.12)}
+.label{color:#a7c6df;font-size:12px;letter-spacing:.3px}
+.number{color:#71e2ff;font-size:25px;font-weight:800;text-shadow:0 0 18px rgba(55,204,255,.2);font-variant-numeric:tabular-nums}
+.panel{position:relative;margin-top:22px;padding:22px;overflow:hidden}
+.panel-heading{position:relative;z-index:1;margin-bottom:14px}
+.empty{color:#92aec9;font-size:13px;padding:22px 0}
+button{
+  color:#031426;
+  border:1px solid rgba(141,228,255,.52);
+  border-radius:11px;
+  padding:11px 16px;
+  cursor:pointer;
+  font:inherit;
+  font-size:13px;
+  font-weight:800;
+  letter-spacing:.15px;
+  background:linear-gradient(135deg,#78e7ff,#35bfff 56%,#1689ed);
+  box-shadow:0 8px 22px rgba(0,153,255,.19),inset 0 1px 0 rgba(255,255,255,.65);
+  transition:transform .16s ease,filter .16s ease,box-shadow .16s ease;
+}
+button:hover{filter:brightness(1.08);transform:translateY(-1px);box-shadow:0 11px 25px rgba(0,153,255,.27),inset 0 1px 0 rgba(255,255,255,.7)}
+button:active{transform:translateY(0)}
+button:disabled{opacity:.5;cursor:not-allowed;transform:none}
+button.secondary{
+  color:#cceeff;
+  border-color:rgba(111,202,255,.28);
+  background:linear-gradient(135deg,rgba(35,105,157,.42),rgba(10,44,81,.68));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08);
+}
+button.danger{
+  color:#fff;
+  border-color:rgba(255,132,157,.42);
+  background:linear-gradient(135deg,#e85d83,#a82f65);
+}
+button.small{padding:8px 11px;font-size:12px}
+button.linklike{
+  color:#c9f1ff;
+  border:1px solid rgba(112,208,255,.34);
+  background:rgba(11,49,83,.42);
+  box-shadow:none;
+}
+form{position:relative;z-index:1;margin-top:18px}
+.field{margin-bottom:15px}
+label{color:#cce8f8;font-size:13px;font-weight:700}
+input,textarea,select{
+  width:100%;
+  padding:12px 13px;
+  color:#eaf8ff;
+  border:1px solid rgba(119,194,236,.28);
+  border-radius:10px;
+  outline:none;
+  font:inherit;
+  background:rgba(2,17,37,.62);
+  box-shadow:inset 0 1px 5px rgba(0,0,0,.14);
+  transition:border-color .16s ease,box-shadow .16s ease,background .16s ease;
+}
+input::placeholder,textarea::placeholder{color:#7897b2}
+input:focus,textarea:focus,select:focus{border-color:#56d5ff;box-shadow:0 0 0 3px rgba(47,188,255,.14),0 0 18px rgba(47,188,255,.08);background:rgba(4,26,52,.82)}
+input[type="file"]{padding:9px;background:rgba(2,17,37,.55)}
+input[type="file"]::file-selector-button{
+  margin-right:11px;padding:8px 12px;border:1px solid rgba(115,214,255,.3);border-radius:8px;
+  color:#d8f5ff;background:rgba(27,109,165,.38);font-weight:700;cursor:pointer
+}
+input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(1);opacity:.75}
+textarea{min-height:90px;resize:vertical}
+.form-actions,.row-actions{gap:9px}
+.request{padding:16px 0;border-bottom:1px solid rgba(116,193,234,.16)}
+.request:last-child{border-bottom:0}
+.request-title{color:#f0faff;font-weight:800}
+.request-meta{color:#9dbbd3;font-size:13px;line-height:1.7}
+.status{color:#ffe3a1;background:rgba(177,126,28,.18);border:1px solid rgba(255,205,111,.24);padding:5px 10px;border-radius:999px}
+.status.approved{color:#8fffd0;background:rgba(27,174,125,.15);border:1px solid rgba(77,236,183,.25)}
+.status.rejected{color:#ffb0c0;background:rgba(190,48,88,.17);border:1px solid rgba(255,113,142,.26)}
+hr{border:0;border-top:1px solid rgba(119,196,237,.2);margin:22px 0}
+.notice{color:#9cc5df;margin-top:12px;font-size:13px;line-height:1.55}
+.notice.error{color:#ff9fb3}
+.notice.success{color:#83f6ca}
+.history-panel{margin-top:12px;padding:14px;background:rgba(4,25,50,.56);border:1px solid rgba(115,197,241,.22);border-radius:12px;box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}
+.history-panel-title{color:#dff6ff;font-weight:800}
+.history-item{color:#b8d3e6;padding:10px 0;border-bottom:1px solid rgba(116,193,234,.14);font-size:13px;line-height:1.6}
+.history-item:last-child{border-bottom:0}
+.profile-editor{gap:22px}
+.profile-avatar-shell{
+  position:relative;isolation:isolate;width:124px;height:124px;flex:0 0 124px;border-radius:50%;overflow:hidden;
+  background:linear-gradient(145deg,rgba(87,211,255,.22),rgba(8,35,68,.82));
+  border:2px solid rgba(126,228,255,.78);
+  box-shadow:0 0 0 6px rgba(47,180,255,.075),0 0 28px rgba(28,174,255,.32),inset 0 0 18px rgba(255,255,255,.18);
+}
+.profile-avatar-shell img,.profile-list-avatar img{width:100%;height:100%;object-fit:cover;display:block}
+.profile-avatar-shell::before,.profile-list-avatar::before{
+  content:"";position:absolute;inset:0;z-index:2;pointer-events:none;border-radius:inherit;
+  background:linear-gradient(145deg,rgba(255,255,255,.28),transparent 27%,transparent 63%,rgba(54,191,255,.16));
+  mix-blend-mode:screen;
+}
+.profile-avatar-shell::after,.profile-list-avatar::after{
+  content:"";position:absolute;inset:3px;z-index:3;pointer-events:none;border-radius:inherit;
+  border:1px solid rgba(209,247,255,.52);box-shadow:inset 0 0 13px rgba(132,229,255,.2);
+}
+.profile-avatar-fallback{position:relative;z-index:1;color:#a9efff;font-size:38px;font-weight:800;text-shadow:0 0 18px rgba(48,201,255,.55)}
+.profile-editor-content{min-width:220px}
+.profile-list-head{gap:14px}
+.profile-list-avatar{
+  position:relative;isolation:isolate;width:58px;height:58px;flex:0 0 58px;border-radius:50%;overflow:hidden;
+  color:#a8edff;font-weight:800;font-size:20px;
+  background:linear-gradient(145deg,rgba(61,188,255,.25),rgba(8,31,61,.85));
+  border:1.5px solid rgba(126,228,255,.76);
+  box-shadow:0 0 0 4px rgba(47,180,255,.07),0 0 18px rgba(28,174,255,.22),inset 0 0 12px rgba(255,255,255,.18);
+}
+.finance-dashboard{
+  margin:8px 0 24px;padding:20px;
+  background:linear-gradient(145deg,rgba(9,37,72,.66),rgba(5,22,48,.78));
+  border:1px solid rgba(111,205,255,.26);border-radius:18px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 15px 38px rgba(0,0,0,.16);
+}
+.finance-dashboard .cards{margin-top:16px;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.finance-dashboard .card{padding:17px;background:linear-gradient(145deg,rgba(18,59,98,.66),rgba(5,28,56,.76))}
+.finance-dashboard .number{font-size:clamp(18px,2vw,23px);margin-top:10px;color:#7ce8ff!important}
+.finance-dashboard .label{color:#a9cde5}
+.finance-filters{gap:12px;margin:18px 0 12px}
+.finance-filters label{font-size:12px}
+.finance-actions{gap:9px;margin:9px 0 14px}
+.finance-table-wrap{border:1px solid rgba(113,197,244,.23);border-radius:12px;background:rgba(3,18,39,.5);overflow-x:auto}
+.finance-table{color:#d9effb;border-collapse:separate;border-spacing:0;min-width:850px}
+.finance-table th,.finance-table td{padding:11px;border-bottom:1px solid rgba(114,191,231,.13)}
+.finance-table th{background:rgba(22,78,122,.48);color:#aee9ff;font-weight:800}
+.finance-table td{color:#c2dced}
+.finance-table td.money{color:#8be8ff;font-variant-numeric:tabular-nums}
+.finance-table tbody tr:hover{background:rgba(40,155,220,.08)}
+.finance-table tr:last-child td{border-bottom:0}
+.finance-note{color:#8eacc5;font-size:12px;line-height:1.6}
+.finance-dashboard .finance-filters .field{margin-bottom:0}
+.login-wrap{max-width:460px;margin:clamp(36px,7vh,80px) auto}
+.login-card{position:relative;padding:30px;overflow:hidden;background:linear-gradient(145deg,rgba(14,47,82,.8),rgba(5,22,47,.84));}
+.login-title{color:#83e7ff;text-shadow:0 0 20px rgba(39,190,255,.35);letter-spacing:1.3px}
+.login-desc{color:#a4c1d9;line-height:1.6}
+#totalBayar{color:#77e7ff!important}
+#nilaiBunga{color:#d6edff}
+#formKasbon .field[style]{background:rgba(25,81,124,.24)!important;border:1px solid rgba(109,204,255,.18)}
+#formKasbon small,.profile-editor small,#formVerifikasi small{color:#91b2cb!important;line-height:1.55}
+#labelAkun{max-width:230px;overflow-wrap:anywhere}
+footer{color:#789bb7;border-top:1px solid rgba(109,194,239,.16);margin-top:48px;padding:24px 12px;text-align:center}
+.creator strong{color:#69dbff;letter-spacing:1.7px}
+@media(max-width:760px){
+  .finance-filters{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .finance-dashboard .cards{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:650px){
+  header{padding:14px 15px;gap:10px}
+  .brand{font-size:18px}
+  main{padding:22px 14px}
+  .cards{grid-template-columns:1fr}
+  .panel{padding:17px}
+  .login-card{padding:22px}
+  .header-actions{gap:6px}
+  .header-label{font-size:11px}
+}
+@media(max-width:480px){
+  .finance-filters{grid-template-columns:1fr}
+  .finance-dashboard .cards{grid-template-columns:1fr}
+  .finance-dashboard{padding:14px}
+  .profile-avatar-shell{width:104px;height:104px;flex-basis:104px}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}
+}
+
 </style>
 </head>
 <body>
@@ -207,6 +506,36 @@ footer{margin-top:48px;padding:22px 12px;text-align:center;border-top:1px solid 
         <div><h2>Panel Admin</h2><div class="sub">Kelola status pengajuan kasbon.</div></div>
         <button id="tombolTutupAdmin" class="secondary" type="button">Tutup panel</button>
       </div>
+      <section id="dashboardKeuangan" class="finance-dashboard">
+        <h2>Dashboard Keuangan</h2>
+        <div class="sub">Ringkasan dihitung dari pengajuan kasbon yang dapat diakses admin. Filter tanggal memakai tanggal pengajuan.</div>
+        <div class="cards">
+          <div class="card"><div class="label">Pokok kasbon dicairkan</div><div class="number" id="laporanPokokDicairkan">Rp0</div></div>
+          <div class="card"><div class="label">Pembayaran diterima</div><div class="number" id="laporanPembayaranDiterima">Rp0</div></div>
+          <div class="card"><div class="label">Sisa tagihan berjalan</div><div class="number" id="laporanSisaTagihan">Rp0</div></div>
+          <div class="card"><div class="label">Menunggu persetujuan</div><div class="number" id="laporanMenunggu">0</div></div>
+          <div class="card"><div class="label">Kasbon berjalan</div><div class="number" id="laporanBerjalan">0</div></div>
+          <div class="card"><div class="label">Kasbon lunas</div><div class="number" id="laporanLunas">0</div></div>
+        </div>
+        <div class="finance-filters">
+          <div class="field"><label for="filterTanggalMulai">Dari tanggal pengajuan</label><input id="filterTanggalMulai" type="date"></div>
+          <div class="field"><label for="filterTanggalAkhir">Sampai tanggal</label><input id="filterTanggalAkhir" type="date"></div>
+          <div class="field"><label for="filterNamaLaporan">Nama karyawan</label><input id="filterNamaLaporan" type="search" placeholder="Cari nama karyawan"></div>
+          <div class="field"><label for="filterStatusLaporan">Status kasbon</label><select id="filterStatusLaporan"><option value="">Semua status</option><option>Menunggu Persetujuan</option><option>Disetujui</option><option>Ditolak</option><option>Dicairkan</option><option>Lunas</option></select></div>
+        </div>
+        <div class="finance-actions">
+          <button id="tombolResetLaporan" class="secondary small" type="button">Reset filter</button>
+          <button id="tombolExportLaporan" class="small" type="button">Export CSV</button>
+        </div>
+        <p id="pesanLaporan" class="finance-note" role="status" aria-live="polite">Menyiapkan laporan...</p>
+        <div class="finance-table-wrap">
+          <table class="finance-table">
+            <thead><tr><th>ID</th><th>Tanggal pengajuan</th><th>Nama karyawan</th><th>Pokok</th><th>Bunga</th><th>Total tagihan</th><th>Sudah dibayar</th><th>Sisa</th><th>Status</th></tr></thead>
+            <tbody id="isiTabelLaporan"><tr><td colspan="9">Memuat laporan...</td></tr></tbody>
+          </table>
+        </div>
+        <p class="finance-note">Catatan: angka pembayaran dan sisa tagihan mengikuti data akumulasi pada setiap pengajuan. Riwayat transaksi per cicilan tetap tersedia melalui tombol Riwayat Pembayaran.</p>
+      </section>
       <p id="pesanAdmin" class="notice" role="status"></p>
       <div id="daftarAdmin"><div class="empty">Tekan ADMIN untuk memuat data.</div></div>
       <hr>
@@ -246,6 +575,8 @@ let penggunaSaatIni = null;
 let profilSaatIni = null;
 let pengajuanSaatIni = [];
 let profilKaryawanCache = [];
+let dataLaporanKasbon = [];
+let dataLaporanTerfilter = [];
 let sedangMemuat = false;
 const BUCKET_FOTO_PROFIL = "foto-profil";
 const BATAS_FOTO_PROFIL = 5 * 1024 * 1024;
@@ -574,6 +905,8 @@ async function muatPanelAdmin() {
       .select("id, user_id, nama_karyawan, jumlah_kasbon, alasan, status, tanggal_pengajuan, bunga_persen, jumlah_bunga, total_bayar, jumlah_dibayar, tanggal_pencairan, tanggal_pelunasan")
       .order("tanggal_pengajuan", { ascending: false });
     if (errPengajuan) throw errPengajuan;
+    dataLaporanKasbon = pengajuan || [];
+    renderDashboardKeuangan();
     renderDaftarAdmin(pengajuan || []);
 
     const { data: profil, error: errProfil } = await supabaseClient
@@ -595,6 +928,146 @@ async function muatPanelAdmin() {
     pesan($("pesanAdmin"), "Gagal memuat panel admin: " + error.message, "error");
   }
 }
+
+function tanggalLokalISO(nilai) {
+  if (!nilai) return "";
+  const tanggal = new Date(nilai);
+  if (Number.isNaN(tanggal.getTime())) return "";
+  const tahun = tanggal.getFullYear();
+  const bulan = String(tanggal.getMonth() + 1).padStart(2, "0");
+  const hari = String(tanggal.getDate()).padStart(2, "0");
+  return tahun + "-" + bulan + "-" + hari;
+}
+
+function ambilLaporanTerfilter() {
+  const mulai = $("filterTanggalMulai")?.value || "";
+  const akhir = $("filterTanggalAkhir")?.value || "";
+  const nama = ($("filterNamaLaporan")?.value || "").trim().toLocaleLowerCase("id-ID");
+  const status = $("filterStatusLaporan")?.value || "";
+
+  return dataLaporanKasbon.filter(item => {
+    const tanggal = tanggalLokalISO(item.tanggal_pengajuan);
+    if (mulai && (!tanggal || tanggal < mulai)) return false;
+    if (akhir && (!tanggal || tanggal > akhir)) return false;
+    if (nama && !String(item.nama_karyawan || "").toLocaleLowerCase("id-ID").includes(nama)) return false;
+    if (status && item.status !== status) return false;
+    return true;
+  });
+}
+
+function buatSelTabel(teks, kelas = "") {
+  const sel = document.createElement("td");
+  sel.textContent = teks;
+  if (kelas) sel.className = kelas;
+  return sel;
+}
+
+function renderDashboardKeuangan() {
+  const daftar = ambilLaporanTerfilter();
+  dataLaporanTerfilter = daftar;
+
+  const sudahDicairkan = daftar.filter(item => ["Dicairkan", "Lunas"].includes(item.status));
+  const pokokDicairkan = sudahDicairkan.reduce((total, item) => total + (Number(item.jumlah_kasbon) || 0), 0);
+  const pembayaranDiterima = sudahDicairkan.reduce((total, item) => total + (Number(item.jumlah_dibayar) || 0), 0);
+  const sisaTagihan = daftar
+    .filter(item => item.status === "Dicairkan")
+    .reduce((total, item) => total + Math.max(0, (Number(item.total_bayar) || 0) - (Number(item.jumlah_dibayar) || 0)), 0);
+  const menunggu = daftar.filter(item => item.status === "Menunggu Persetujuan").length;
+  const berjalan = daftar.filter(item => item.status === "Dicairkan").length;
+  const lunas = daftar.filter(item => item.status === "Lunas").length;
+
+  $("laporanPokokDicairkan").textContent = formatRupiah(pokokDicairkan);
+  $("laporanPembayaranDiterima").textContent = formatRupiah(pembayaranDiterima);
+  $("laporanSisaTagihan").textContent = formatRupiah(sisaTagihan);
+  $("laporanMenunggu").textContent = String(menunggu);
+  $("laporanBerjalan").textContent = String(berjalan);
+  $("laporanLunas").textContent = String(lunas);
+
+  const isi = $("isiTabelLaporan");
+  isi.replaceChildren();
+  if (!daftar.length) {
+    const barisKosong = document.createElement("tr");
+    const selKosong = buatSelTabel("Tidak ada pengajuan yang sesuai dengan filter.");
+    selKosong.colSpan = 9;
+    barisKosong.appendChild(selKosong);
+    isi.appendChild(barisKosong);
+  } else {
+    daftar.forEach(item => {
+      const baris = document.createElement("tr");
+      const total = Number(item.total_bayar) || 0;
+      const dibayar = Number(item.jumlah_dibayar) || 0;
+      const sisa = item.status === "Dicairkan" ? Math.max(0, total - dibayar) : 0;
+      const tanggal = item.tanggal_pengajuan ? new Date(item.tanggal_pengajuan).toLocaleDateString("id-ID") : "-";
+      baris.append(
+        buatSelTabel(String(item.id)),
+        buatSelTabel(tanggal),
+        buatSelTabel(item.nama_karyawan || "-"),
+        buatSelTabel(formatRupiah(item.jumlah_kasbon), "money"),
+        buatSelTabel(formatRupiah(item.jumlah_bunga), "money"),
+        buatSelTabel(formatRupiah(total), "money"),
+        buatSelTabel(formatRupiah(dibayar), "money"),
+        buatSelTabel(formatRupiah(sisa), "money"),
+        buatSelTabel(item.status || "-")
+      );
+      isi.appendChild(baris);
+    });
+  }
+
+  $("pesanLaporan").textContent = "Menampilkan " + daftar.length + " dari " + dataLaporanKasbon.length + " pengajuan. Periode filter berdasarkan tanggal pengajuan.";
+}
+
+function exportLaporanCSV() {
+  const daftar = dataLaporanTerfilter;
+  if (!daftar.length) {
+    $("pesanLaporan").textContent = "Tidak ada data untuk diekspor. Ubah atau reset filter terlebih dahulu.";
+    return;
+  }
+  const kolom = ["ID", "Tanggal Pengajuan", "Nama Karyawan", "Pokok Kasbon", "Bunga", "Total Tagihan", "Sudah Dibayar", "Sisa Tagihan", "Status"];
+  const baris = [kolom];
+  daftar.forEach(item => {
+    const total = Number(item.total_bayar) || 0;
+    const dibayar = Number(item.jumlah_dibayar) || 0;
+    const sisa = item.status === "Dicairkan" ? Math.max(0, total - dibayar) : 0;
+    baris.push([
+      item.id,
+      item.tanggal_pengajuan ? new Date(item.tanggal_pengajuan).toLocaleString("id-ID") : "",
+      item.nama_karyawan || "",
+      Number(item.jumlah_kasbon) || 0,
+      Number(item.jumlah_bunga) || 0,
+      total,
+      dibayar,
+      sisa,
+      item.status || ""
+    ]);
+  });
+  const csv = "\uFEFF" + baris.map(row => row.map(nilai => '"' + String(nilai ?? "").replace(/"/g, '""') + '"').join(",")).join("\r\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const tautan = document.createElement("a");
+  const sekarang = new Date();
+  const namaTanggal = sekarang.getFullYear() + String(sekarang.getMonth() + 1).padStart(2, "0") + String(sekarang.getDate()).padStart(2, "0");
+  tautan.href = url;
+  tautan.download = "laporan-kasbon-sahata-dana-" + namaTanggal + ".csv";
+  document.body.appendChild(tautan);
+  tautan.click();
+  tautan.remove();
+  URL.revokeObjectURL(url);
+  $("pesanLaporan").textContent = "Laporan CSV berhasil disiapkan untuk " + daftar.length + " pengajuan.";
+}
+
+["filterTanggalMulai", "filterTanggalAkhir", "filterNamaLaporan", "filterStatusLaporan"].forEach(id => {
+  $(id).addEventListener("input", renderDashboardKeuangan);
+  $(id).addEventListener("change", renderDashboardKeuangan);
+});
+
+$("tombolResetLaporan").addEventListener("click", () => {
+  $("filterTanggalMulai").value = "";
+  $("filterTanggalAkhir").value = "";
+  $("filterNamaLaporan").value = "";
+  $("filterStatusLaporan").value = "";
+  renderDashboardKeuangan();
+});
+$("tombolExportLaporan").addEventListener("click", exportLaporanCSV);
 
 function amanTeks(teks) {
   return String(teks ?? "").replace(/[&<>"']/g, c => ({

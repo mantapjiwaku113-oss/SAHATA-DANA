@@ -150,6 +150,27 @@ footer{margin-top:48px;padding:22px 12px;text-align:center;border-top:1px solid 
       </div>
     </section>
 
+    <section id="panelVerifikasi" class="panel" hidden>
+      <div class="panel-heading">
+        <div><h2>Verifikasi Identitas</h2><div class="sub">Unggah foto KTP dan selfie untuk diperiksa admin. Dokumen disimpan secara privat.</div></div>
+      </div>
+      <p id="pesanVerifikasi" class="notice" role="status" aria-live="polite"></p>
+      <div id="daftarStatusVerifikasi"></div>
+      <form id="formVerifikasi" hidden>
+        <div class="field">
+          <label for="fileKtp">Foto KTP (bagian depan)</label>
+          <input id="fileKtp" type="file" accept="image/jpeg,image/png,image/webp" capture="environment" required>
+          <small style="display:block;margin-top:7px;color:#687064">Format JPG, PNG, atau WEBP. Maksimal 5 MB.</small>
+        </div>
+        <div class="field">
+          <label for="fileSelfie">Foto selfie</label>
+          <input id="fileSelfie" type="file" accept="image/jpeg,image/png,image/webp" capture="user" required>
+          <small style="display:block;margin-top:7px;color:#687064">Ambil foto wajah dengan jelas. Maksimal 5 MB.</small>
+        </div>
+        <button id="tombolKirimVerifikasi" type="submit">Kirim untuk Verifikasi</button>
+      </form>
+    </section>
+
     <section id="panelAdmin" class="panel" hidden>
       <div class="panel-heading">
         <div><h2>Panel Admin</h2><div class="sub">Kelola status pengajuan kasbon.</div></div>
@@ -161,6 +182,10 @@ footer{margin-top:48px;padding:22px 12px;text-align:center;border-top:1px solid 
       <h2>Akun terdaftar</h2>
       <div class="sub">Informasi akun dari tabel profiles.</div>
       <div id="daftarProfil"><div class="empty">Memuat akun...</div></div>
+      <hr>
+      <h2>Verifikasi Identitas Karyawan</h2>
+      <div class="sub">Dokumen hanya dapat dibuka oleh pemilik akun dan admin aktif melalui tautan sementara.</div>
+      <div id="daftarVerifikasi"><div class="empty">Memuat permohonan verifikasi...</div></div>
     </section>
   </section>
 
@@ -189,6 +214,7 @@ let modeAuth = "login";
 let penggunaSaatIni = null;
 let profilSaatIni = null;
 let pengajuanSaatIni = [];
+let profilKaryawanCache = [];
 let sedangMemuat = false;
 
 function pesan(elemen, teks, tipe = "") {
@@ -213,6 +239,7 @@ function aturTampilanMasuk() {
   $("tombolKeluar").hidden = true;
   $("labelAkun").hidden = true;
   $("panelAdmin").hidden = true;
+  $("panelVerifikasi").hidden = true;
 }
 
 function aturTampilanDashboard() {
@@ -222,6 +249,7 @@ function aturTampilanDashboard() {
   $("labelAkun").hidden = false;
   $("labelAkun").textContent = profilSaatIni?.full_name || penggunaSaatIni?.email || "Pengguna";
   const adalahAdmin = profilSaatIni?.role === "admin";
+  $("panelVerifikasi").hidden = adalahAdmin;
   $("tombolAdmin").hidden = !adalahAdmin;
   $("bukaForm").hidden = adalahAdmin;
   $("areaForm").hidden = true;
@@ -254,6 +282,9 @@ async function periksaAkun(user) {
   profilSaatIni = profil;
   aturTampilanDashboard();
   await muatPengajuan();
+  if (profilSaatIni?.role !== "admin") {
+    await muatVerifikasiSaya();
+  }
   return true;
 }
 
@@ -509,10 +540,13 @@ async function muatPanelAdmin() {
       .select("id, full_name, role, account_status, created_at")
       .order("created_at", { ascending: false });
     if (errProfil) {
+      profilKaryawanCache = [];
       $("daftarProfil").innerHTML = '<div class="empty">Daftar akun tidak dapat dimuat: ' + amanTeks(errProfil.message) + '</div>';
     } else {
-      renderDaftarProfil(profil || []);
+      profilKaryawanCache = profil || [];
+      renderDaftarProfil(profilKaryawanCache);
     }
+    await muatDaftarVerifikasiAdmin();
     pesan($("pesanAdmin"), "Data admin berhasil dimuat.", "success");
   } catch (error) {
     $("daftarAdmin").innerHTML = '<div class="empty">Data admin tidak dapat dimuat.</div>';
@@ -913,6 +947,318 @@ async function toggleRiwayatPembayaran(pengajuanId, wadah, tombol) {
     });
   } catch (error) {
     isi.textContent = "Riwayat gagal dimuat: " + error.message + ". Pastikan skrip SQL riwayat pembayaran sudah dijalankan di Supabase.";
+  }
+}
+
+const BUCKET_DOKUMEN_IDENTITAS = "dokumen-identitas";
+const BATAS_FILE_IDENTITAS = 5 * 1024 * 1024;
+const TIPE_FILE_IDENTITAS = {
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp"
+};
+
+function renderStatusVerifikasi(items) {
+  const wadah = $("daftarStatusVerifikasi");
+  wadah.replaceChildren();
+
+  if (!items || items.length === 0) {
+    const kosong = document.createElement("div");
+    kosong.className = "empty";
+    kosong.textContent = "Belum ada dokumen identitas yang dikirim.";
+    wadah.appendChild(kosong);
+    $("formVerifikasi").hidden = false;
+    pesan($("pesanVerifikasi"), "Silakan unggah foto KTP dan selfie untuk memulai verifikasi.");
+    return;
+  }
+
+  const terbaru = items[0];
+  items.forEach(item => {
+    const baris = document.createElement("div");
+    baris.className = "request";
+    const judul = document.createElement("div");
+    judul.className = "request-title";
+    judul.textContent = "Status: " + item.status;
+    const tanggal = document.createElement("div");
+    tanggal.className = "request-meta";
+    tanggal.textContent = "Dikirim: " + new Date(item.created_at).toLocaleString("id-ID");
+    baris.append(judul, tanggal);
+    if (item.reviewed_at) {
+      const diperiksa = document.createElement("div");
+      diperiksa.className = "request-meta";
+      diperiksa.textContent = "Diperiksa: " + new Date(item.reviewed_at).toLocaleString("id-ID");
+      baris.appendChild(diperiksa);
+    }
+    if (item.catatan_admin) {
+      const catatan = document.createElement("div");
+      catatan.className = "request-meta";
+      catatan.textContent = "Catatan admin: " + item.catatan_admin;
+      baris.appendChild(catatan);
+    }
+    wadah.appendChild(baris);
+  });
+
+  if (terbaru.status === "Disetujui") {
+    $("formVerifikasi").hidden = true;
+    pesan($("pesanVerifikasi"), "Identitas sudah disetujui admin.", "success");
+  } else if (terbaru.status === "Menunggu Pemeriksaan") {
+    $("formVerifikasi").hidden = true;
+    pesan($("pesanVerifikasi"), "Dokumen sedang menunggu pemeriksaan admin.");
+  } else {
+    $("formVerifikasi").hidden = false;
+    pesan($("pesanVerifikasi"), "Dokumen perlu dikirim ulang sesuai catatan admin.", "error");
+  }
+}
+
+async function muatVerifikasiSaya() {
+  if (!penggunaSaatIni || profilSaatIni?.role === "admin") return;
+  pesan($("pesanVerifikasi"), "Memuat status verifikasi...");
+  try {
+    const { data, error } = await supabaseClient
+      .from("verifikasi_identitas")
+      .select("id,status,catatan_admin,created_at,reviewed_at")
+      .eq("user_id", penggunaSaatIni.id)
+      .order("created_at", { ascending: false })
+      .limit(10);
+    if (error) throw error;
+    renderStatusVerifikasi(data || []);
+  } catch (error) {
+    $("formVerifikasi").hidden = false;
+    pesan($("pesanVerifikasi"), "Status verifikasi gagal dimuat: " + error.message, "error");
+  }
+}
+
+function ekstensiFileIdentitas(file) {
+  return TIPE_FILE_IDENTITAS[file.type] || null;
+}
+
+$("formVerifikasi").addEventListener("submit", async event => {
+  event.preventDefault();
+  if (!penggunaSaatIni || profilSaatIni?.role === "admin" || profilSaatIni?.account_status !== "approved") {
+    pesan($("pesanVerifikasi"), "Hanya karyawan dengan akun aktif yang dapat mengirim dokumen.", "error");
+    return;
+  }
+
+  const ktp = $("fileKtp").files?.[0];
+  const selfie = $("fileSelfie").files?.[0];
+  if (!ktp || !selfie) {
+    pesan($("pesanVerifikasi"), "Pilih foto KTP dan foto selfie terlebih dahulu.", "error");
+    return;
+  }
+
+  for (const [label, file] of [["KTP", ktp], ["Selfie", selfie]]) {
+    if (!ekstensiFileIdentitas(file)) {
+      pesan($("pesanVerifikasi"), label + " harus berformat JPG, PNG, atau WEBP.", "error");
+      return;
+    }
+    if (file.size <= 0 || file.size > BATAS_FILE_IDENTITAS) {
+      pesan($("pesanVerifikasi"), "Ukuran file " + label + " harus lebih dari 0 dan maksimal 5 MB.", "error");
+      return;
+    }
+  }
+
+  const tombol = $("tombolKirimVerifikasi");
+  tombol.disabled = true;
+  pesan($("pesanVerifikasi"), "Memeriksa status dan mengunggah dokumen secara privat...");
+
+  try {
+    const { data: statusAktif, error: errorStatus } = await supabaseClient
+      .from("verifikasi_identitas")
+      .select("id,status")
+      .eq("user_id", penggunaSaatIni.id)
+      .in("status", ["Menunggu Pemeriksaan", "Disetujui"])
+      .limit(1);
+    if (errorStatus) throw errorStatus;
+    if (statusAktif && statusAktif.length) {
+      throw new Error("Sudah ada verifikasi yang menunggu pemeriksaan atau sudah disetujui.");
+    }
+
+    const submissionId = window.crypto?.randomUUID
+      ? window.crypto.randomUUID()
+      : (Date.now().toString(36) + Math.random().toString(36).slice(2));
+    const folder = penggunaSaatIni.id + "/" + submissionId;
+    const pathKtp = folder + "/ktp." + ekstensiFileIdentitas(ktp);
+    const pathSelfie = folder + "/selfie." + ekstensiFileIdentitas(selfie);
+
+    const { error: errorUploadKtp } = await supabaseClient.storage
+      .from(BUCKET_DOKUMEN_IDENTITAS)
+      .upload(pathKtp, ktp, { cacheControl: "3600", upsert: false, contentType: ktp.type });
+    if (errorUploadKtp) throw errorUploadKtp;
+
+    const { error: errorUploadSelfie } = await supabaseClient.storage
+      .from(BUCKET_DOKUMEN_IDENTITAS)
+      .upload(pathSelfie, selfie, { cacheControl: "3600", upsert: false, contentType: selfie.type });
+    if (errorUploadSelfie) throw errorUploadSelfie;
+
+    const { error: errorInsert } = await supabaseClient
+      .from("verifikasi_identitas")
+      .insert({
+        user_id: penggunaSaatIni.id,
+        ktp_path: pathKtp,
+        selfie_path: pathSelfie,
+        status: "Menunggu Pemeriksaan"
+      });
+    if (errorInsert) throw errorInsert;
+
+    $("formVerifikasi").reset();
+    pesan($("pesanVerifikasi"), "Dokumen berhasil dikirim. Tunggu pemeriksaan admin.", "success");
+    await muatVerifikasiSaya();
+  } catch (error) {
+    pesan($("pesanVerifikasi"), "Pengiriman dokumen gagal: " + error.message, "error");
+  } finally {
+    tombol.disabled = false;
+  }
+});
+
+async function muatDaftarVerifikasiAdmin() {
+  if (profilSaatIni?.role !== "admin" || profilSaatIni?.account_status !== "approved") return;
+  const wadah = $("daftarVerifikasi");
+  wadah.innerHTML = '<div class="empty">Memuat permohonan verifikasi...</div>';
+  try {
+    const { data, error } = await supabaseClient
+      .from("verifikasi_identitas")
+      .select("id,user_id,ktp_path,selfie_path,status,catatan_admin,created_at,reviewed_at")
+      .order("created_at", { ascending: false })
+      .limit(100);
+    if (error) throw error;
+    renderDaftarVerifikasiAdmin(data || []);
+  } catch (error) {
+    wadah.textContent = "Permohonan verifikasi gagal dimuat: " + error.message;
+  }
+}
+
+function renderDaftarVerifikasiAdmin(items) {
+  const wadah = $("daftarVerifikasi");
+  wadah.replaceChildren();
+  if (!items.length) {
+    const kosong = document.createElement("div");
+    kosong.className = "empty";
+    kosong.textContent = "Belum ada dokumen identitas yang dikirim karyawan.";
+    wadah.appendChild(kosong);
+    return;
+  }
+
+  items.forEach(item => {
+    const baris = document.createElement("div");
+    baris.className = "request";
+    const profil = profilKaryawanCache.find(p => p.id === item.user_id);
+    const judul = document.createElement("div");
+    judul.className = "request-title";
+    judul.textContent = (profil?.full_name || "Karyawan") + " · " + item.status;
+    const rincian = document.createElement("div");
+    rincian.className = "request-meta";
+    rincian.textContent = "Dikirim: " + new Date(item.created_at).toLocaleString("id-ID");
+    baris.append(judul, rincian);
+
+    const dokumen = document.createElement("div");
+    dokumen.className = "row-actions";
+    dokumen.style.marginTop = "10px";
+    const tombolKtp = document.createElement("button");
+    tombolKtp.type = "button";
+    tombolKtp.className = "small secondary";
+    tombolKtp.textContent = "Siapkan tautan KTP";
+    tombolKtp.addEventListener("click", () => siapkanTautanDokumen(item.ktp_path, "KTP", dokumen, tombolKtp));
+    const tombolSelfie = document.createElement("button");
+    tombolSelfie.type = "button";
+    tombolSelfie.className = "small secondary";
+    tombolSelfie.textContent = "Siapkan tautan selfie";
+    tombolSelfie.addEventListener("click", () => siapkanTautanDokumen(item.selfie_path, "selfie", dokumen, tombolSelfie));
+    dokumen.append(tombolKtp, tombolSelfie);
+    baris.appendChild(dokumen);
+
+    if (item.catatan_admin) {
+      const catatan = document.createElement("div");
+      catatan.className = "request-meta";
+      catatan.textContent = "Catatan: " + item.catatan_admin;
+      baris.appendChild(catatan);
+    }
+
+    if (item.status === "Menunggu Pemeriksaan") {
+      const aksi = document.createElement("div");
+      aksi.className = "row-actions";
+      aksi.style.marginTop = "10px";
+      const setuju = document.createElement("button");
+      setuju.type = "button";
+      setuju.className = "small";
+      setuju.textContent = "Setujui Identitas";
+      setuju.addEventListener("click", () => ubahStatusVerifikasi(item.id, "Disetujui", setuju));
+      const tolak = document.createElement("button");
+      tolak.type = "button";
+      tolak.className = "small danger";
+      tolak.textContent = "Tolak / Minta Ulang";
+      tolak.addEventListener("click", () => ubahStatusVerifikasi(item.id, "Ditolak", tolak));
+      aksi.append(setuju, tolak);
+      baris.appendChild(aksi);
+    }
+    wadah.appendChild(baris);
+  });
+}
+
+async function siapkanTautanDokumen(path, label, wadah, tombol) {
+  if (profilSaatIni?.role !== "admin" || profilSaatIni?.account_status !== "approved") {
+    alert("Hanya admin aktif yang dapat membuka dokumen identitas.");
+    return;
+  }
+  tombol.disabled = true;
+  try {
+    const { data, error } = await supabaseClient.storage
+      .from(BUCKET_DOKUMEN_IDENTITAS)
+      .createSignedUrl(path, 60);
+    if (error) throw error;
+    const tautan = document.createElement("a");
+    tautan.href = data.signedUrl;
+    tautan.target = "_blank";
+    tautan.rel = "noopener noreferrer";
+    tautan.textContent = "Buka " + label + " (tautan berlaku 1 menit)";
+    tautan.style.display = "inline-block";
+    tautan.style.padding = "8px 10px";
+    tautan.style.fontSize = "12px";
+    tautan.style.fontWeight = "bold";
+    tautan.style.color = "var(--green2)";
+    tautan.style.textDecoration = "underline";
+    wadah.appendChild(tautan);
+  } catch (error) {
+    alert("Dokumen tidak dapat dibuka: " + error.message);
+  } finally {
+    tombol.disabled = false;
+  }
+}
+
+async function ubahStatusVerifikasi(id, statusBaru, tombol) {
+  if (profilSaatIni?.role !== "admin" || profilSaatIni?.account_status !== "approved") {
+    alert("Hanya admin aktif yang dapat memeriksa identitas.");
+    return;
+  }
+  let catatan = null;
+  if (statusBaru === "Ditolak") {
+    catatan = prompt("Tuliskan alasan dokumen perlu dikirim ulang:");
+    if (catatan === null) return;
+    catatan = catatan.trim() || "Dokumen perlu diperbaiki dan dikirim ulang.";
+  } else if (!confirm("Setujui verifikasi identitas karyawan ini?")) {
+    return;
+  }
+
+  tombol.disabled = true;
+  try {
+    const { data, error } = await supabaseClient
+      .from("verifikasi_identitas")
+      .update({
+        status: statusBaru,
+        catatan_admin: catatan,
+        reviewed_at: new Date().toISOString(),
+        reviewed_by: penggunaSaatIni.id
+      })
+      .eq("id", id)
+      .eq("status", "Menunggu Pemeriksaan")
+      .select("id,status")
+      .maybeSingle();
+    if (error) throw error;
+    if (!data) throw new Error("Permohonan tidak berubah. Muat ulang daftar dan periksa statusnya.");
+    pesan($("pesanAdmin"), "Status verifikasi berhasil diubah menjadi " + statusBaru + ".", "success");
+    await muatDaftarVerifikasiAdmin();
+  } catch (error) {
+    pesan($("pesanAdmin"), "Gagal memperbarui verifikasi: " + error.message, "error");
+    tombol.disabled = false;
   }
 }
 

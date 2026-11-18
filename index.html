@@ -54,7 +54,15 @@ hr{border:0;border-top:1px solid var(--line);margin:22px 0}
 .history-panel-title{font-weight:bold;font-size:13px;margin-bottom:8px}
 .history-item{padding:9px 0;border-bottom:1px solid var(--line);font-size:13px;line-height:1.5}
 .history-item:last-child{border-bottom:0}
-.history-item-amount{font-weight:bold;color:var(--green2)}
+.profile-editor{display:flex;align-items:center;gap:20px;flex-wrap:wrap;margin-top:12px}
+.profile-avatar-shell{width:112px;height:112px;flex:0 0 112px;border-radius:50%;overflow:hidden;background:#e9eee9;border:3px solid #dce6dd;display:flex;align-items:center;justify-content:center}
+.profile-avatar-shell img{width:100%;height:100%;object-fit:cover}
+.profile-avatar-fallback{font-size:36px;font-weight:bold;color:var(--green2)}
+.profile-editor-content{flex:1;min-width:220px}
+.profile-editor-content form{margin-top:0}
+.profile-list-head{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.profile-list-avatar{width:54px;height:54px;flex:0 0 54px;border-radius:50%;overflow:hidden;background:#e9eee9;border:1px solid #dce6dd;display:flex;align-items:center;justify-content:center;color:var(--green2);font-weight:bold;font-size:20px}
+.profile-list-avatar img{width:100%;height:100%;object-fit:cover}
 .login-wrap{max-width:440px;margin:28px auto}
 .login-card{padding:26px}
 .login-title{text-align:center;color:var(--green2);margin-bottom:8px}
@@ -108,6 +116,29 @@ footer{margin-top:48px;padding:22px 12px;text-align:center;border-top:1px solid 
       <div class="card"><div class="label">Total Kasbon Aktif</div><div class="number" id="totalAktif">Rp 0</div></div>
       <div class="card"><div class="label">Menunggu Persetujuan</div><div class="number" id="totalMenunggu">0 pengajuan</div></div>
       <div class="card"><div class="label">Total Karyawan</div><div class="number" id="totalKaryawan">0 orang</div></div>
+    </section>
+
+    <section id="panelFotoProfil" class="panel" hidden>
+      <div class="panel-heading">
+        <div><h2>Foto Profil</h2><div class="sub">Tambahkan foto agar akun karyawan lebih mudah dikenali admin.</div></div>
+      </div>
+      <div class="profile-editor">
+        <div class="profile-avatar-shell">
+          <img id="fotoProfilSaya" alt="Foto profil karyawan" hidden>
+          <div id="inisialFotoProfil" class="profile-avatar-fallback">?</div>
+        </div>
+        <div class="profile-editor-content">
+          <form id="formFotoProfil">
+            <div class="field">
+              <label for="fileFotoProfil">Pilih foto profil</label>
+              <input id="fileFotoProfil" type="file" accept="image/jpeg,image/png,image/webp" capture="user" required>
+              <small style="display:block;margin-top:7px;color:#687064">Format JPG, PNG, atau WEBP. Maksimal 5 MB. Foto disimpan secara privat.</small>
+            </div>
+            <button id="tombolSimpanFotoProfil" type="submit">Simpan Foto Profil</button>
+            <p id="pesanFotoProfil" class="notice" role="status" aria-live="polite"></p>
+          </form>
+        </div>
+      </div>
     </section>
 
     <section class="panel">
@@ -216,6 +247,13 @@ let profilSaatIni = null;
 let pengajuanSaatIni = [];
 let profilKaryawanCache = [];
 let sedangMemuat = false;
+const BUCKET_FOTO_PROFIL = "foto-profil";
+const BATAS_FOTO_PROFIL = 5 * 1024 * 1024;
+const TIPE_FOTO_PROFIL = {
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp"
+};
 
 function pesan(elemen, teks, tipe = "") {
   elemen.textContent = teks || "";
@@ -240,6 +278,7 @@ function aturTampilanMasuk() {
   $("labelAkun").hidden = true;
   $("panelAdmin").hidden = true;
   $("panelVerifikasi").hidden = true;
+  $("panelFotoProfil").hidden = true;
 }
 
 function aturTampilanDashboard() {
@@ -250,6 +289,7 @@ function aturTampilanDashboard() {
   $("labelAkun").textContent = profilSaatIni?.full_name || penggunaSaatIni?.email || "Pengguna";
   const adalahAdmin = profilSaatIni?.role === "admin";
   $("panelVerifikasi").hidden = adalahAdmin;
+  $("panelFotoProfil").hidden = adalahAdmin;
   $("tombolAdmin").hidden = !adalahAdmin;
   $("bukaForm").hidden = adalahAdmin;
   $("areaForm").hidden = true;
@@ -258,7 +298,7 @@ function aturTampilanDashboard() {
 async function periksaAkun(user) {
   const { data: profil, error } = await supabaseClient
     .from("profiles")
-    .select("id, full_name, role, account_status")
+    .select("id, full_name, role, account_status, avatar_path")
     .eq("id", user.id)
     .maybeSingle();
 
@@ -283,6 +323,7 @@ async function periksaAkun(user) {
   aturTampilanDashboard();
   await muatPengajuan();
   if (profilSaatIni?.role !== "admin") {
+    await muatFotoProfilSaya();
     await muatVerifikasiSaya();
   }
   return true;
@@ -537,13 +578,14 @@ async function muatPanelAdmin() {
 
     const { data: profil, error: errProfil } = await supabaseClient
       .from("profiles")
-      .select("id, full_name, role, account_status, created_at")
+      .select("id, full_name, role, account_status, created_at, avatar_path")
       .order("created_at", { ascending: false });
     if (errProfil) {
       profilKaryawanCache = [];
       $("daftarProfil").innerHTML = '<div class="empty">Daftar akun tidak dapat dimuat: ' + amanTeks(errProfil.message) + '</div>';
     } else {
       profilKaryawanCache = profil || [];
+      await muatTautanFotoProfilAdmin(profilKaryawanCache);
       renderDaftarProfil(profilKaryawanCache);
     }
     await muatDaftarVerifikasiAdmin();
@@ -698,9 +740,22 @@ function renderDaftarProfil(items) {
     const baris = document.createElement("div");
     baris.className = "request";
 
+    const kepala = document.createElement("div");
+    kepala.className = "profile-list-head";
+    const avatar = document.createElement("div");
+    avatar.className = "profile-list-avatar";
+    if (item.avatar_url) {
+      const gambar = document.createElement("img");
+      gambar.src = item.avatar_url;
+      gambar.alt = "Foto profil " + (item.full_name || "karyawan");
+      avatar.appendChild(gambar);
+    } else {
+      avatar.textContent = inisialNama(item.full_name);
+    }
     const judul = document.createElement("div");
     judul.className = "request-title";
     judul.textContent = item.full_name || "(Nama belum diisi)";
+    kepala.append(avatar, judul);
 
     const rincian = document.createElement("div");
     rincian.className = "request-meta";
@@ -710,7 +765,7 @@ function renderDaftarProfil(items) {
     tanggal.className = "request-meta";
     tanggal.textContent = "Terdaftar: " + (item.created_at ? new Date(item.created_at).toLocaleDateString("id-ID") : "-");
 
-    baris.append(judul, rincian, tanggal);
+    baris.append(kepala, rincian, tanggal);
 
     // Hanya akun employee berstatus pending/rejected yang dapat diubah di panel ini.
     if (item.role === "employee" && ["pending", "rejected"].includes(item.account_status)) {
@@ -949,6 +1004,136 @@ async function toggleRiwayatPembayaran(pengajuanId, wadah, tombol) {
     isi.textContent = "Riwayat gagal dimuat: " + error.message + ". Pastikan skrip SQL riwayat pembayaran sudah dijalankan di Supabase.";
   }
 }
+
+function inisialNama(nama) {
+  const teks = String(nama || "Karyawan").trim();
+  return teks ? teks.charAt(0).toUpperCase() : "?";
+}
+
+function ekstensiFotoProfil(file) {
+  return TIPE_FOTO_PROFIL[file.type] || null;
+}
+
+function tampilkanFotoProfilSaya(url) {
+  const gambar = $("fotoProfilSaya");
+  const fallback = $("inisialFotoProfil");
+  fallback.textContent = inisialNama(profilSaatIni?.full_name);
+  if (url) {
+    gambar.src = url;
+    gambar.hidden = false;
+    fallback.hidden = true;
+  } else {
+    gambar.removeAttribute("src");
+    gambar.hidden = true;
+    fallback.hidden = false;
+  }
+}
+
+async function muatFotoProfilSaya() {
+  if (!penggunaSaatIni || profilSaatIni?.role === "admin") return;
+  if (!profilSaatIni?.avatar_path) {
+    tampilkanFotoProfilSaya(null);
+    return;
+  }
+  try {
+    const { data, error } = await supabaseClient.storage
+      .from(BUCKET_FOTO_PROFIL)
+      .createSignedUrl(profilSaatIni.avatar_path, 3600);
+    if (error) throw error;
+    tampilkanFotoProfilSaya(data.signedUrl);
+  } catch (error) {
+    tampilkanFotoProfilSaya(null);
+    pesan($("pesanFotoProfil"), "Foto profil belum dapat dimuat: " + error.message, "error");
+  }
+}
+
+async function muatTautanFotoProfilAdmin(items) {
+  await Promise.all((items || []).map(async item => {
+    item.avatar_url = null;
+    if (!item.avatar_path) return;
+    try {
+      const { data, error } = await supabaseClient.storage
+        .from(BUCKET_FOTO_PROFIL)
+        .createSignedUrl(item.avatar_path, 3600);
+      if (!error) item.avatar_url = data.signedUrl;
+    } catch (_) {
+      item.avatar_url = null;
+    }
+  }));
+}
+
+$("formFotoProfil").addEventListener("submit", async event => {
+  event.preventDefault();
+  if (!penggunaSaatIni || profilSaatIni?.role !== "employee" || profilSaatIni?.account_status !== "approved") {
+    pesan($("pesanFotoProfil"), "Hanya akun karyawan aktif yang dapat mengubah foto profil.", "error");
+    return;
+  }
+
+  const file = $("fileFotoProfil").files[0];
+  if (!file) {
+    pesan($("pesanFotoProfil"), "Pilih foto profil terlebih dahulu.", "error");
+    return;
+  }
+  const ekstensi = ekstensiFotoProfil(file);
+  if (!ekstensi) {
+    pesan($("pesanFotoProfil"), "Foto harus berformat JPG, PNG, atau WEBP.", "error");
+    return;
+  }
+  if (file.size <= 0 || file.size > BATAS_FOTO_PROFIL) {
+    pesan($("pesanFotoProfil"), "Ukuran foto harus lebih dari 0 dan maksimal 5 MB.", "error");
+    return;
+  }
+
+  const tombol = $("tombolSimpanFotoProfil");
+  tombol.disabled = true;
+  pesan($("pesanFotoProfil"), "Mengunggah foto profil secara privat...");
+  let pathBaru = null;
+  try {
+    const idFile = window.crypto?.randomUUID
+      ? window.crypto.randomUUID()
+      : "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, karakter => {
+          const angka = Math.random() * 16 | 0;
+          const nilai = karakter === "x" ? angka : (angka & 3 | 8);
+          return nilai.toString(16);
+        });
+    pathBaru = penggunaSaatIni.id + "/" + idFile + "." + ekstensi;
+    const { error: errorUpload } = await supabaseClient.storage
+      .from(BUCKET_FOTO_PROFIL)
+      .upload(pathBaru, file, {
+        cacheControl: "3600",
+        upsert: false,
+        contentType: file.type
+      });
+    if (errorUpload) throw errorUpload;
+
+    const { error: errorSimpan } = await supabaseClient.rpc("simpan_foto_profil", {
+      p_avatar_path: pathBaru
+    });
+    if (errorSimpan) throw errorSimpan;
+
+    const pathLama = profilSaatIni.avatar_path;
+    profilSaatIni.avatar_path = pathBaru;
+    await muatFotoProfilSaya();
+    $("formFotoProfil").reset();
+    pesan($("pesanFotoProfil"), "Foto profil berhasil disimpan.", "success");
+
+    if (pathLama && pathLama !== pathBaru) {
+      const { error: errorHapusLama } = await supabaseClient.storage
+        .from(BUCKET_FOTO_PROFIL)
+        .remove([pathLama]);
+      if (errorHapusLama) {
+        pesan($("pesanFotoProfil"), "Foto profil berhasil diperbarui, tetapi foto lama belum dapat dihapus.", "success");
+      }
+    }
+  } catch (error) {
+    if (pathBaru) {
+      await supabaseClient.storage.from(BUCKET_FOTO_PROFIL).remove([pathBaru]);
+    }
+    pesan($("pesanFotoProfil"), "Gagal menyimpan foto profil: " + error.message, "error");
+  } finally {
+    tombol.disabled = false;
+  }
+});
 
 const BUCKET_DOKUMEN_IDENTITAS = "dokumen-identitas";
 const BATAS_FILE_IDENTITAS = 5 * 1024 * 1024;
